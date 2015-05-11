@@ -1,0 +1,411 @@
+This is some introductionary posting on how to work with a PostgreSQL database, some development basics and some server side programming.
+
+
+It might help someone who has a similar idea and is in need for some inspiration.
+
+
+At this point I want to thank all of those who shared their work with me here. Without them I would not have been able to develop this and I gladly share my work here to get others started just like I got started by some other people before. And on top of that: Working with big data on PostgreSQL is pretty much fun for all data nerds like me. :)
+
+
+[u][b]The challenge of tick data[/b][/u]
+
+All volatility measurement is done on equidistant time series values.
+But tick data has no equidistant time so it has to be aggregated over some arbitrarily time frame or time window.
+The most commonly used aggregation in trading is the Open/High/Low/Close (OHLC) representation.
+An OHLC representation has a normalized time stamp and the open price, the highest price, the lowest price and the last price of a certain time window or time frame. The volume is aggregated over the ticks and stored along the OHLC row. Volume is differentiated as "tick volume" e.g. the number of ticks in the time window or "trade volume". Dukascopy also provides "bid volume" and "ask volume" from their orderbook.
+
+
+So lets develop a OHLC representation from our tick data available.
+
+
+[u][b]How to get time frame data from our tick data?[/u][/b]
+To get to time frame data from tick data two steps are neccessary.
+[LIST=1]
+[*] Break down the tick data into time frame groups.
+[*] Aggregate the tick values over the time frame groups.
+[/LIST]
+[u]The prepositions to the program part are:[/u]
+[LIST]
+[*] Each pair/ohlc is built from the lowest timeframe to the highest.
+[*] The function to do that shall have as little parameters as possible.
+[*] This function has to do its work autonomously on the PostgreSQL server.
+[/LIST]
+The function has to know which pair and which time range of the tick data to work on.
+From the pair_id it can derive all other information like
+[LIST]
+[*] the broker_id to fetch the broker information.
+[*] The timeframe_id to fetch the time frame parameters.
+[*] The tick data - of course.
+[/LIST]
+
+The first step is:
+[u][b]Break down the tick data into time frame groups[/u][/b]
+
+First - we have to create a normalized timestamp representation based on number of seconds of a time frame. This is absolutely neccessary to get the time frame groups.
+
+
+This function has to have a timestamp which is to be normalized and a time frame or time window which is the base of the normalization.
+And we need this function very likely more than once so we better declare this formula as a function with two parameters and a timestamp as return value.
+
+PostgreSQL provides a variety of languages in which such a task can be done.
+The most common and earliest language of PostgreSQL is "PL/PGSQL" or "plpgsql" in short.
+
+Here's the code of the function:
+
+[code]
+create or replace function normalize_timeframe(
+    in_ttimestamp    t_mt4_ticks.ttimestamp%type,
+    in_timeframe     t_mt4_pair_timeframes.ttimeframe%type
+) returns timestamp with time zone
+as $$
+declare
+    rc        t_mt4_ticks.ttimestamp%type;
+begin
+    rc:=timestamp with time zone 'epoch' + interval '1 second' * trunc((extract('epoch' from in_ttimestamp) / in_timeframe)) * in_timeframe;
+    return rc;
+
+end;
+$$ language 'plpgsql';
+[/code]
+
+This function takes the time stamp and the time frame as parameters and breaks down the time stamp to the time frame seconds as a result. As we do not know in advance to which granularisation we want to normalize, we assume the least time frame as a minimum: The second.
+
+
+The forumula to do that is: 
+Divide the functions time stamp parameter by the seconds of the time frame and truncate this result to the nearest second. 
+
+After that multiply the result of that operation again with the seconds of the timeframe.
+
+Add the epoch start to that result interpreted as an "interval of seconds" and store it into the timestamp variable "rc".
+
+Return the contents of the variable "rc" to the caller.
+
+
+Note also that the variable type declaration takes the type to use directly from the t_mt4_ticks.ttimestamp column as well as the in_timeframe takes its type from the t_mt4_pair_timeframes.ttimeframe column of the database. When sometimes someone changes his mind and changes the type of the column, the function will just have to be recompiled to use the new types.
+
+
+Test M5, M15 and M30:
+
+[code]
+mtforex=# select normalize_timeframe('2015-05-08 08:20:01.214', 300);
+  normalize_timeframe  
+------------------------
+ 2015-05-08 08:20:00+00
+(1 row)
+
+mtforex=# select normalize_timeframe('2015-05-08 08:20:01.214', 900);
+  normalize_timeframe  
+------------------------
+ 2015-05-08 08:15:00+00
+
+(1 row)
+
+mtforex=# select normalize_timeframe('2015-05-08 08:20:01.214', 1800);
+  normalize_timeframe  
+------------------------
+ 2015-05-08 08:00:00+00
+(1 row)
+mtforex=#
+[/code]
+
+We now have a foundation to break down the tick data into the different time frames.
+
+
+After that the query to fetch the time frame foundation is quickly built:
+[code]
+-- generate a table of timeframe data 
+select distinct
+	-- payload as a base to build OHLC values
+	tf.timeframe_id,
+	t.pair_id,
+	normalize_timeframe(t.ttimestamp, tf.ttimeframe) as v_from_time,
+	normalize_timeframe(t.ttimestamp, tf.ttimeframe) +  (to_char(tf.ttimeframe, '999999999999') || ' seconds')::interval as v_until_time
+from
+	t_mt4_pairdata p 
+	join t_mt4_ticks t using (pair_id)
+	join t_mt4_pair_timeframes tf using (pair_id)
+where
+	p.pair_id=4 and
+	t.ttimestamp>='2015-01-01'::timestamp and
+	t.ttimestamp<='2015-12-01'::timestamp and
+	tf.timeframe_id=24
+order by
+	v_from_time;
+[/code]
+
+
+The "timeframe_id" of 24 and the "pair_id" of 4 point to the M15 timeframe of USDJPY in my development database so the result set is 
+
+
+[code]
+ timeframe_id | pair_id |       v_from_time        |       v_until_time       
+--------------+---------+--------------------------+--------------------------
+           24 |       4 | 06/05/2015 12:45:00 CEST | 06/05/2015 13:00:00 CEST
+           24 |       4 | 06/05/2015 13:00:00 CEST | 06/05/2015 13:15:00 CEST
+..... omitted rows ...
+           24 |       4 | 08/05/2015 22:30:00 CEST | 08/05/2015 22:45:00 CEST
+           24 |       4 | 08/05/2015 22:45:00 CEST | 08/05/2015 23:00:00 CEST
+(233 rows)
+[/code]
+
+Now we can take this resultset to fetch the tick data for "pair_id" which the ttimestamp is between "v_from_time" and "v_until_time".
+
+
+But wait a second: We have to do that fetching and aggregating for bid and ask - then for Open/High/Low/Close and Volume and Tickvolume. 
+So a Query using this foundation has to fire at least ten (!) subselects onto a high volume table for each row of the timeframe resultset.
+
+
+Aside from being a tedious and error prone work to implement ten nearly identical subqueries into a base query, this approach will most surely have some runtime issues.
+
+
+PostgreSQL provides Window-Functions and with them the implementation is like that:
+
+
+[code]
+select distinct
+	i.timeframe_id,
+	i.v_from_time,
+	-- open
+	first_value(tt.dbid) over w_timeframe_time_from as v_d_open_bid,
+	first_value(tt.dask) over w_timeframe_time_from as v_d_open_ask,
+	-- high
+	max(tt.dbid) over w_timeframe_time_from as v_d_high_bid,
+	max(tt.dask) over w_timeframe_time_from as v_d_high_ask,
+	-- low
+	min(tt.dbid) over w_timeframe_time_from as v_d_low_bid,
+	min(tt.dask) over w_timeframe_time_from as v_d_low_ask,
+	-- close
+	last_value(tt.dbid) over w_timeframe_time_from as v_d_close_bid,
+	last_value(tt.dask) over w_timeframe_time_from as v_d_close_ask,
+	-- volume
+	sum(dvolume) over w_timeframe_time_from as v_d_volume,
+	count(*) over w_timeframe_time_from as v_d_tickvolume
+from (
+	-- generate a table of timeframe data 
+	select distinct
+		-- payload as a base to build OHLC values
+		tf.timeframe_id,
+		t.pair_id,
+		normalize_timeframe(t.ttimestamp, tf.ttimeframe) as v_from_time,
+		normalize_timeframe(t.ttimestamp, tf.ttimeframe) +  (to_char(tf.ttimeframe, '999999999999') || ' seconds')::interval as v_until_time
+	from
+		t_mt4_pairdata p 
+		join t_mt4_ticks t using (pair_id)
+		join t_mt4_pair_timeframes tf using (pair_id)
+	where
+		p.pair_id=4 and
+		t.ttimestamp>='2015-01-01'::timestamp and
+		t.ttimestamp<='2015-12-01'::timestamp and
+		tf.timeframe_id=24
+) i join t_mt4_ticks tt on (
+	tt.pair_id=i.pair_id and 
+	tt.ttimestamp>=i.v_from_time and 
+	tt.ttimestamp<i.v_until_time
+)
+window 
+	w_timeframe_time_from as (
+		partition by i.timeframe_id, i.v_from_time 
+		order by i.v_from_time, tt.loctimestamp 
+		rows between unbounded preceding and unbounded following
+	)
+;
+[/code]
+
+Note that we're simply joining the "t_mt4_ticks" table to the resultset of timeframe foundation subquery using a pair_id and a time range. 
+This gives us a very big result set as we're getting a cross product in this way.
+
+But this result set has only to be read once for each subselected time frame foundation row so the I/O of the window functions is neglectable compared to the subselects.
+
+The window function used here is in the lower part of the query and declared only once for the query.
+It says that the big big result set is to be divided into partitions using the timeframe_id and the v_from_time.
+Then each partition has to be sorted by v_from_time and the loctimestamp.
+And each partition has to consider all rows in the partition and not only the rows from the first row until the current row. 
+If we did omit this, then the aggregates would have been a running sum instead.
+
+
+After that the big resultset is condensed by using "distinct" so that the result of the query is like that:
+
+[code]
+ timeframe_id |      v_from_time       | v_d_open_bid | v_d_open_ask | v_d_high_bid | v_d_high_ask | v_d_low_bid | v_d_low_ask | v_d_close_bid | v
+--------------+------------------------+--------------+--------------+--------------+--------------+-------------+-------------+---------------+--
+           24 | 2015-05-06 10:45:00+00 |    119.79700 |    119.79900 |    119.80000 |    119.80200 |   119.78200 |   119.78500 |     119.78700 |  
+           24 | 2015-05-06 11:00:00+00 |    119.78800 |    119.79000 |    119.79600 |    119.79700 |   119.74100 |   119.74400 |  .......
+......
+......
+           24 | 2015-05-08 20:30:00+00 |    119.73200 |    119.73700 |    119.75200 |    119.75600 |   119.70800 |   119.71500 |     119.74800 |  
+           24 | 2015-05-08 20:45:00+00 |    119.74800 |    119.75200 |    119.78600 |    119.80200 |   119.73100 |   119.75200 |     119.73800 |  
+(233 Zeilen)
+[/code]
+
+
+The original code using the "subselects" described first is also included in the .zip file in the first posting so you can compare for yourself.
+It's about ten times slower than version using window functions. And the result sets are identical. Check!
+
+Normally we would only write an "insert into t_mt4_ohlc" before the select and we had populated the OHLC table with the data aggregated from our tick values.
+
+But we want to have some error checking and some logout put because of the autonomous property of the function.
+And we do surely not want to bother by fetching all needed information (broker_id, timeframe_id) manually for each time frame we fetch from the "t_mt4_pair_timeframes" table defined for the pair.
+
+So a new function is introduced, called:
+
+[code]
+create or replace function do_populate_ohlc (
+	in_pair_id	t_mt4_pairdata.pair_id%type,
+	in_from_time	t_mt4_ticks.ttimestamp%type,
+	in_until_time	t_mt4_ticks.ttimestamp%type
+) returns bigint 
+declare
+....
+
+[/code]
+
+which does all the work for us and provides us some information about the conversion.
+
+The code of this function is included in the .zip file of the first posting as well, of course.
+
+
+Now we have to think about the base table "t_mt4_pair_timeframes".
+This table provides information about which OHLC rows to create and wants to be populated.
+We can insert each row by hand (which is what I did first) or we can use a data template.
+
+
+A data template is a result set which resembles real information but is used for populating new base tables only.
+The new data structures of the .zip file above contain the DML neccessary to create a data template of a broker named "DUMMY" and a pair named "DUMMY".
+If you're recreating the structures from the .zip file in posting #1 you'll already in gear to use the data template as well.
+
+So if we want to prepare a new pair for creating OHLC data we just take the data from the DUMMY-pair and insert it with a new pair_id into our t_mt4_pair_timeframes table:
+
+
+[code]
+insert into t_mt4_pair_timeframes (pair_id, ttimeframe, timeframe_name)
+select
+	i.*
+from (
+	select 
+		-- change this number to your pair_id needed
+		15 as pair_id,
+		ttimeframe,
+		timeframe_name
+	from 
+		t_mt4_pair_timeframes tf 
+		join t_mt4_pairdata p using (pair_id) 
+	where 
+		pairname='DUMMY'
+) i 
+-- prevent duplicate entries
+left join t_mt4_pair_timeframes ttf on (
+	ttf.pair_id=i.pair_id and
+	ttf.ttimeframe=i.ttimeframe
+)
+where
+	ttf.ttimeframe is null;
+[/code]
+
+This query inserts a new pair_id "15" into the t_mt4_timeframe table using the values obtained from the DUMMY-pair.
+That's all on that part.
+
+After that we can populate the OHLC rows using our tick data by entering:
+
+[code]
+select do_populate_ohlc(
+	15,
+	'2015-01-01'::timestamp,
+	'2015-12-31'::timestamp
+);
+[/code]
+
+and the whole conversion task will run on the server, autonomously.
+
+This can well be included into a shell script and be run in a cron job each night or when ever needed.
+
+
+Now for the graphical part - where I want to use [R] for:
+
+Ever wanted to know how the five minutes before and the 30 minutes after the NFP look like in a 30 second time frame?
+
+Well then - populate your database let the ohlc buildup run and run the scriptlet below:
+
+[code]
+# This is an example to read OHLC data from PostgreSQL
+# into [R] and to draw some chart on the data
+#
+# Change the variables to your needs
+# they are parameters to the function defined below.
+#########################
+OANDA_BROKER_ID = 2
+FXCM_BROKER_ID = 1
+PAIR_NAME <- "USDJPY"
+FROM_TIME  <- "2015-05-08 14:25:00"
+UNTIL_TIME <- "2015-05-08 15:00:00"
+TIMEFRAME_NAME <- 'S30';
+thisTZ <- "Europe/Berlin"
+#########################
+pkgs <- c('zoo', 'xts', 'lattice', 'fBasics', 'MASS', 'quantmod', 'TTR', 'RPostgreSQL')
+lapply(pkgs, require, character.only=T)
+remove(pkgs)
+#
+getOption("digits.secs")
+opts <- options(digits.secs = 3)
+
+fetch_ohlc <- function(
+	broker_id, 
+	alias_name,
+	timeframe_name,
+	from_timestamp,
+	until_timestamp
+) {
+	# Connect to the PostgreSQL database 
+	con <- dbConnect(PostgreSQL(), user="postgres", host="192.168.102.254", password="",dbname="mtforex")
+	# Create a query for the data of the PostgreSQL server
+	# Note that the time zone has to be supplied as well!
+	q <- paste(
+		"select
+			o.*
+		 from 
+			t_mt4_ohlc o
+			join t_mt4_pair_timeframes f using (timeframe_id)
+			join t_mt4_pairdata p using (pair_id)
+			join t_mt4_brokers b using (broker_id)
+			join t_mt4_pairaliases pa using (pair_id)
+			join t_mt4_aliasnames a using (alias_id)
+		where
+			b.broker_id=", broker_id, " and ",
+			" a.pairname='", alias_name, "' and ",
+			" f.timeframe_name='", timeframe_name, "' and ",
+			" o.ttimestamp>='", from_timestamp, " ", thisTZ, "'::timestamp with time zone and ",
+			" o.ttimestamp<='", until_timestamp, " ", thisTZ, "'::timestamp with time zone;",
+		sep=""
+	)
+	rs <- dbSendQuery(con, q)
+	rc <- fetch(rs, n=-1)
+	dbClearResult(rs)
+	dbDisconnect(con)
+	if (nrow(rc)>0) {
+		# Note that no time zone recalculation is needed here!
+		rc <- as.xts(rc[,c("dopenbid", "dhighbid", "dlowbid", "dclosebid", "dtickvolume")], order.by=rc$ttimestamp)
+		names(rc) <- c("open", "high", "low", "close", "volume")
+	}
+	
+	return(rc)
+}
+nrow(oanda)
+
+oanda  <- fetch_ohlc(OANDA_BROKER_ID, PAIR_NAME, TIMEFRAME_NAME, FROM_TIME, UNTIL_TIME)
+fxcm   <- fetch_ohlc(FXCM_BROKER_ID, PAIR_NAME, TIMEFRAME_NAME, FROM_TIME, UNTIL_TIME)
+#
+prices <- oanda
+chart_Series(prices, 
+			 name=paste("OANDA ", PAIR_NAME, " in TF ", TIMEFRAME_NAME, sep=""),
+			 log.scale=FALSE,
+			 show.grid=TRUE
+)
+
+prices <- fxcm
+chart_Series(prices, 
+			 name=paste("FXCM ", PAIR_NAME, " in TF ", TIMEFRAME_NAME, sep=""),
+			 log.scale=FALSE,
+			 show.grid=TRUE
+)
+
+[/code]
+

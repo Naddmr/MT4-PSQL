@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="9">
+      <Unit0>
+        <Filename Value="mt4psql.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="mt4psql"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="4" Y="17"/>
+        <UsageCount Value="1573"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="upqclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UpqClass"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="4" Y="17"/>
+        <UsageCount Value="1573"/>
+        <Bookmarks Count="1">
+          <Item0 X="19" Y="184" ID="0"/>
+        </Bookmarks>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="upqdispatcher.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uPQDispatcher"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="4" Y="17"/>
+        <UsageCount Value="173"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uPQWriterDefinitions"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="18"/>
+        <UsageCount Value="173"/>
+        <Loaded Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\MT4-R\mt4R_source-1.3.0.25\profs_trconsole.pas"/>
+        <UnitName Value="profs_TRConsole"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="900"/>
+        <CursorPos X="16" Y="483"/>
+        <UsageCount Value="764"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\MT4-R\mt4R-source-1.3.0.27\mt4r.lpr"/>
+        <UnitName Value="mt4R"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="65"/>
+        <CursorPos X="20" Y="93"/>
+        <UsageCount Value="2"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="..\MT4-Timezones\mt4_timezone_support_class.pas"/>
+        <UnitName Value="mt4_timezone_support_class"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="141"/>
+        <CursorPos X="50" Y="170"/>
+        <UsageCount Value="22"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="..\..\..\lazarus\fpc\2.6.2\source\rtl\objpas\dateutil.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1335"/>
+        <CursorPos X="17" Y="1377"/>
+        <UsageCount Value="27"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="..\..\..\lazarus\fpc\2.6.2\source\rtl\objpas\sysutils\datih.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="97"/>
+        <CursorPos X="16" Y="92"/>
+        <UsageCount Value="4"/>
+      </Unit8>
+    </Units>
+    <General>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="308" Column="44" TopLine="291"/>
+      </Position1>
+      <Position2>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="290" Column="72" TopLine="265"/>
+      </Position2>
+      <Position3>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="33" Column="34" TopLine="21"/>
+      </Position3>
+      <Position4>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="116" Column="1" TopLine="88"/>
+      </Position4>
+      <Position5>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="235" Column="1" TopLine="224"/>
+      </Position5>
+      <Position6>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="34" Column="36" TopLine="1"/>
+      </Position6>
+      <Position7>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="279" Column="93" TopLine="254"/>
+      </Position7>
+      <Position8>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="118" Column="24" TopLine="96"/>
+      </Position8>
+      <Position9>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="276" Column="27" TopLine="248"/>
+      </Position9>
+      <Position10>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="190" Column="85" TopLine="161"/>
+      </Position10>
+      <Position11>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="225" Column="1" TopLine="181"/>
+      </Position11>
+      <Position12>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="281" Column="12" TopLine="248"/>
+      </Position12>
+      <Position13>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="191" Column="70" TopLine="162"/>
+      </Position13>
+      <Position14>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="202" Column="108" TopLine="167"/>
+      </Position14>
+      <Position15>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="207" Column="134" TopLine="177"/>
+      </Position15>
+      <Position16>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="223" Column="29" TopLine="206"/>
+      </Position16>
+      <Position17>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="238" Column="40" TopLine="208"/>
+      </Position17>
+      <Position18>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="92" Column="19" TopLine="59"/>
+      </Position18>
+      <Position19>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="282" Column="1" TopLine="253"/>
+      </Position19>
+      <Position20>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="286" Column="86" TopLine="256"/>
+      </Position20>
+      <Position21>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="238" Column="1" TopLine="197"/>
+      </Position21>
+      <Position22>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="513" Column="60" TopLine="197"/>
+      </Position22>
+      <Position23>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="86" Column="33" TopLine="36"/>
+      </Position23>
+      <Position24>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="113" Column="99" TopLine="71"/>
+      </Position24>
+      <Position25>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="131" Column="27" TopLine="107"/>
+      </Position25>
+      <Position26>
+        <Filename Value="mt4psql.lpr"/>
+        <Caret Line="5" Column="22" TopLine="1"/>
+      </Position26>
+      <Position27>
+        <Filename Value="mt4psql.lpr"/>
+        <Caret Line="17" Column="2" TopLine="1"/>
+      </Position27>
+      <Position28>
+        <Filename Value="upqdispatcher.pas"/>
+        <Caret Line="250" Column="17" TopLine="243"/>
+      </Position28>
+      <Position29>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="205" Column="16" TopLine="199"/>
+      </Position29>
+      <Position30>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="10" Column="19" TopLine="1"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectSession>
+  <EditorMacros Count="0"/>
+</CONFIG>
