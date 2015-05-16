@@ -43,6 +43,7 @@ pMQLTickRow = ^TMQLTickRow;
 TSQLTickRow = packed record
         pairID		: Integer;
         MQLTick		: TMQLTickRow;
+        BrokerTimeZone	: AnsiString;
         localTime	: TTimeStamp;
         TickTime	: TDateTime;
         TickCounter	: Integer;
@@ -72,6 +73,44 @@ TFiFoPointer = packed record
         read_idx	: DWORD;
         write_idx	: DWORD;
 end;
+PQConfigClass = Class
+public
+	ThisPairName			: AnsiString;
+        ThisBrokerTimeZone		: AnsiString;
+        ThisMachineTimezone		: AnsiString;
+        ThisBrokerName			: AnsiString;
+        ThisAccountIsDemo		: DWORD;
+	ThisEAName			: AnsiString;
+        ThisTimeframe			: Integer;
+        ThisPairPoint			: Double;
+        ThisPairDigits			: Double;
+        DBHostname			: AnsiString;
+     	DBHostPort			: DWORD;
+     	DBName				: AnsiString;
+     	DBUserName			: AnsiString;
+     	DBPassword			: AnsiString;
+        MaxRetries			: DWORD;
+        PollingInterval			: DWORD;
+        constructor create(
+		pBrokerTimeZone		: WideString;
+                pMachineTimeZone	: WideString;
+		pEAName 		: WideString;
+		pPairName 		: WideString;
+                pBrokerName		: WideString;
+                pIsDemo			: DWORD;
+                pTimeframe		: Integer;
+                pPoint			: Double;
+        	pDigits			: Double;
+                pPollingInterval	: DWORD;
+		pDBHostname		: WideString;
+		pDBHostPort		: Integer;
+		pDBName			: WideString;
+		pDBUsername		: WideString;
+		pDBPassword		: WideString;
+                pMaxRetries		: DWORD
+        );
+        destructor destroy(); override;
+end;
 //
 const
 	BROKER_SHAREMEM_SUFFIX	=	'_BROKERS';
@@ -82,7 +121,53 @@ const
 procedure Log(AMessage: WideString);
 procedure Log(AMessage: WideString; AArgs: array of const);
 
+
+
+// ########################################
 implementation
+
+constructor PQConfigClass.create(
+		pBrokerTimeZone		: WideString;
+                pMachineTimeZone	: WideString;
+		pEAName 		: WideString;
+		pPairName 		: WideString;
+                pBrokerName		: WideString;
+                pIsDemo			: DWORD;
+                pTimeframe		: Integer;
+                pPoint			: Double;
+        	pDigits			: Double;
+                pPollingInterval	: DWORD;
+		pDBHostname		: WideString;
+		pDBHostPort		: Integer;
+		pDBName			: WideString;
+		pDBUsername		: WideString;
+		pDBPassword		: WideString;
+                pMaxRetries		: DWORD
+        );
+begin
+        ThisPairName:=Utf8ToAnsi(pPairName);
+        ThisBrokerTimezone:=Utf8ToAnsi(pBrokerTimeZone);
+        ThisMachineTimezone:=Utf8ToAnsi(pMachineTimeZone);
+        ThisBrokerName:=Utf8ToAnsi(pBrokerName);
+        ThisAccountIsDemo:=pIsDemo;
+     	ThisEAName:=Utf8ToAnsi(pEAName);
+        ThisTimeframe:=pTimeFrame;
+        ThisPairPoint:=pPoint;
+        ThisPairDigits:=pDigits;
+     	DBHostname:=Utf8ToAnsi(pDBHostname);
+     	DBHostPort:=pDBHostPort;
+     	DBName:=Utf8ToAnsi(pDBName);
+     	DBUserName:=Utf8ToAnsi(pDBUsername);
+     	DBPassword:=Utf8ToAnsi(pDBPassword);
+        MaxRetries:=pMaxRetries;
+        PollingInterval:=pPollingInterval;
+end;
+
+destructor PQConfigClass.destroy();
+begin
+        inherited destroy();
+end;
+
 // log a message to the debug monitor
 procedure Log(AMessage: WideString);
 begin

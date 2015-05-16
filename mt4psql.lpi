@@ -36,7 +36,7 @@
         <PackageName Value="LCLBase"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="mt4psql.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -56,6 +56,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="uPQWriterDefinitions"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="upq_configclass.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uPQ_ConfigClass"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

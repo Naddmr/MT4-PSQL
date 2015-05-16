@@ -28,7 +28,7 @@ uses
        SysUtils,
        UpqClass,
        uPQDispatcher,
-       uPQWriterDefinitions;
+       uPQWriterDefinitions, uPQ_ConfigClass;
 
 function pqInit(
    	pBrokerTimezone		: pWideChar;
@@ -91,9 +91,6 @@ begin
      	// and enqueue the values ...
      	nTick:=New(pSQLTickRow);
      	nTick^.MQLTick:=pTick^;
-     	// store an additional timestamp of the local time
-     	// in the tick row to derive the milliseconds from there.
-     	nTick^.localTime:=DateTimeToTimeStamp(Now);
      	PQDispatcher(pHdl).DispatchTick(nTick);
 end;
 

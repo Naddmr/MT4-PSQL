@@ -35,16 +35,8 @@ type
 //
 PQWriterClass = class
 protected
+        config				: PQConfigClass;
         // Parameters ...
-        ThisBrokerTimezone		: AnsiString;
-        ThisMachineTimezone		: AnsiString;
-        ThisBrokerName			: AnsiString;
-        ThisAccountIsDemo		: DWORD;
-	ThisEAName			: AnsiString;
-	ThisPairName			: AnsiString;
-        ThisTimeframe			: Integer;
-        ThisPairPoint			: Double;
-        ThisPairDigits			: Double;
         PredTTimeStamp,
         CurrTTimeStamp			: TTimeStamp;
         MaxRetries			: DWORD;
@@ -79,21 +71,7 @@ protected
 
 public
 	constructor create(
-                pBrokerTimeZone		: WideString;
-                pMachineTimeZone	: WideString;
-		pEAName 		: WideString;
-		pPairName 		: WideString;
-                pBrokerName		: WideString;
-                pIsDemo			: DWORD;
-                pTimeframe		: Integer;
-                pPoint			: Double;
-        	pDigits			: Double;
-		pDBHostname		: WideString;
-		pDBHostPort		: Integer;
-		pDBName			: WideString;
-		pDBUsername		: WideString;
-		pDBPassword		: WideString;
-                pMaxRetries		: DWORD
+                pConfig			: PQConfigClass
 	);
         //
 	destructor Destroy(); override;
@@ -119,76 +97,46 @@ end;
 implementation
 
 constructor PQWriterClass.create(
-        pBrokerTimeZone		: WideString;
-        pMachineTimeZone	: WideString;
-	pEAName 		: WideString;
-        pPairName 		: WideString;
-        pBrokerName		: WideString;
-        pIsDemo			: DWORD;
-        pTimeFrame		: Integer;
-        pPoint			: Double;
-        pDigits			: Double;
-        pDBHostname		: WideString;
-        pDBHostPort		: Integer;
-        pDBName			: WideString;
-        pDBUsername		: WideString;
-        pDBPassword		: WideString;
-        pMaxRetries		: DWORD
+        pConfig			: PQConfigClass
 );
 begin
-        ThisPairName:=Utf8ToAnsi( pPairName );
-     	log('PQWriterClass.create %s: Invoking', [ThisPairName]);
+     	log('PQWriterClass.create %s: Invoking', [config.ThisPairName]);
         ThisBrokerID:=-1;
         ThisPairID:=-1;
         ThisAliasID:=-1;
-        ThisBrokerTimezone:=Utf8ToAnsi( pBrokerTimeZone );
-        ThisMachineTimezone:=Utf8ToAnsi( pMachineTimeZone );
-        ThisBrokerName:=Utf8ToAnsi( pBrokerName );
-        ThisAccountIsDemo:=pIsDemo;
-     	ThisEAName:=Utf8ToAnsi( pEAName );
-        ThisTimeframe:=pTimeFrame;
-        ThisPairPoint:=pPoint;
-        ThisPairDigits:=pDigits;
-        MaxRetries:=pMaxRetries;
         isInitalized:=true;
         PredLocTime:=0;
         DBTransaction:=NIL;
         DBConnection:=NIL;
-        log('PQWriterClass.create %s: Connecting...', [ThisPairName]);
+        log('PQWriterClass.create %s: Connecting...', [config.ThisPairName]);
      	DBConnection:=TPQConnection.create(NIL);
-        log('PQWriterClass.create %s: Created ...', [ThisPairName]);
-     	DBConnection.HostName:=Utf8ToAnsi(pDBHostname);
-	log('PQWriterClass.create %s: HostName="%s"', [ThisPairName, DBConnection.HostName]);
-     	DBConnection.DatabaseName:=Utf8ToAnsi(pDBName);
-        log('PQWriterClass.create %s: DatabaseName="%s"', [ThisPairName, DBConnection.DatabaseName]);
-     	DBConnection.UserName:=Utf8ToAnsi(pDBUsername);
-        log('PQWriterClass.create %s: UserName="%s"', [ThisPairName, DBConnection.UserName]);
-     	DBConnection.Password:=Utf8ToAnsi(pDBPassword);
-        log('PQWriterClass.create %s: Password="%s"', [ThisPairName, DBConnection.Password]);
-        DBConnection.Params.Add('port='+IntToStr(pDBHostPort));
+        log('PQWriterClass.create %s: Created ...', [config.ThisPairName]);
+     	DBConnection.HostName:=Utf8ToAnsi(config.DBHostname);
+	log('PQWriterClass.create %s: HostName="%s"', [config.ThisPairName, DBConnection.HostName]);
+     	DBConnection.DatabaseName:=Utf8ToAnsi(config.DBName);
+        log('PQWriterClass.create %s: DatabaseName="%s"', [config.ThisPairName, DBConnection.DatabaseName]);
+     	DBConnection.UserName:=Utf8ToAnsi(config.DBUsername);
+        log('PQWriterClass.create %s: UserName="%s"', [config.ThisPairName, DBConnection.UserName]);
+     	DBConnection.Password:=Utf8ToAnsi(config.DBPassword);
+        log('PQWriterClass.create %s: Password="%s"', [config.ThisPairName, DBConnection.Password]);
+        DBConnection.Params.Add('port='+IntToStr(config.DBHostPort));
         // Does not work!
         // [4752] PQWriterClass.create: Error "Connection to database failed (PostgreSQL: invalid connection option "timezone"
         // log('PQWriterClass.create: Setting DBConnection time zone to "' + ThisBrokerTimezone + '"');
 	// DBConnection.Params.Add('timezone=''' + ThisBrokerTimezone + '''');
-        log('PQWriterClass.create %s: Parameters set ... connecting ...', [ThisPairName]);
+        log('PQWriterClass.create %s: Parameters set ... connecting ...', [config.ThisPairName]);
         try
 	     	DBConnection.Open;
                 DBTransaction := TSQLTransaction.Create(NIL);
   		DBTransaction.Database := DBConnection;
-                log('PQWriterClass.create %s: Setting session time zone to "%s"', [ThisPairName, ThisBrokerTimezone]);
-                SessionSettingsQuery:=TSQLQuery.create(NIL);
-                SessionSettingsQuery.DataBase:=DBConnection;
-                SessionSettingsQuery.SQL.Text:='SET SESSION TIME ZONE ''' + ThisBrokerTimezone + '''';
-                SessionSettingsQuery.ExecSQL;
-                DBTransaction.Commit;
                 isConnected:=true;
         except on E:Exception do begin
-                	Log('PQWriterClass.create %s: Error "%s"', [ThisPairName, E.Message]);
+                	Log('PQWriterClass.create %s: Error "%s"', [config.ThisPairName, E.Message]);
                         isConnected:=false;
 		end;
 	end;
         if (isConnected) then begin
-                log('PQWriterClass.create %s: Connection successful - exiting', [ThisPairName]);
+                log('PQWriterClass.create %s: Connection successful - exiting', [config.ThisPairName]);
                 // A Query to get the broker id into ThisBrokerID;
                 getBrokerIDQuery:=TSQLQuery.create(NIL);
                 getBrokerIDQuery.DataBase:=DBConnection;
@@ -236,14 +184,14 @@ begin
                 insertAliasPairQuery.SQL.Text:='insert into t_mt4_pairaliases (pair_id, alias_id) values (:THISPAIRID, :THISALIASID)';
 
                 // A Query to insert a tick into SQL
-                log('PQWriterClass.create %s: Creating tick insert-query', [ThisPairName]);
+                log('PQWriterClass.create %s: Creating tick insert-query', [config.ThisPairName]);
                 insertTickQuery:=TSQLQuery.create(NIL);
                 insertTickQuery.DataBase:=DBConnection;
                 insertTickQuery.SQL.Text:='insert into t_mt4_ticks (pair_id, loctimestamp, tick_cnt, ttimestamp, isBadTick, dbid, dask, dlast, dvolume) values ' +
                 			'(:PAIRID, cast(:LOCTIMESTAMP as timestamptz), :TICKCOUNTER, cast(:TIMESTAMP as timestamptz), :ISROQUETICK, :BID, :ASK, :LAST, :VOLUME)';
                 			// Using this the time zone information gets lost.
                                         // '(:PAIRID, :TIMESTAMP, :BID, :ASK, :LAST, :VOLUME)';
-        	log('PQWriterClass.create %s: Connected!', [ThisPairName]);
+        	log('PQWriterClass.create %s: Connected!', [config.ThisPairName]);
                 lastTickSecond:=0;
                 // Prepare base table contents and populate
                 // the internal variables of this class
@@ -252,27 +200,27 @@ begin
                 getAliasData();
                 if (not isInitalized) then begin
 	        	if (ThisBrokerID<0) then begin
-			        log('PQWriterClass.create %s: Could not fetch the broker ID for "%s"', [ThisPairName, ThisBrokerName]);
+			        log('PQWriterClass.create %s: Could not fetch the broker ID for "%s"', [config.ThisPairName, config.ThisBrokerName]);
 			        isConnected:=false;
 	        	end;
 		        if (ThisPairID<0) then begin
-	        		log('PQWriterClass.create %s: Could not fetch the pair ID for "%s, %s"', [ThisPairName, ThisPairID, ThisBrokerID]);
+	        		log('PQWriterClass.create %s: Could not fetch the pair ID for "%s, %s"', [config.ThisPairName, ThisPairID, ThisBrokerID]);
 		        	isConnected:=false;
 	        	end;
                         if (ThisAliasID<0) then begin
-                        	log('PQWriterClass.create %s: Could not fetch the alias ID for "%s, %s"', [ThisPairName, ThisPairID, ThisBrokerID]);
+                        	log('PQWriterClass.create %s: Could not fetch the alias ID for "%s, %s"', [config.ThisPairName, ThisPairID, ThisBrokerID]);
 		        	isConnected:=false;
 			end;
 
 		end;
 	end else begin
-                log('PQWriterClass.create %s: Creation failed during connection establishing - exiting', [ThisPairName]);
+                log('PQWriterClass.create %s: Creation failed during connection establishing - exiting', [config.ThisPairName]);
 	end;
 end;
 
 destructor PQWriterClass.destroy();
 begin
-        log('PQWriterClass.destroy %s: Destroying ...', [ThisPairName]);
+        log('PQWriterClass.destroy %s: Destroying ...', [config.ThisPairName]);
         SessionSettingsQuery.free;
         insertTickQuery.free;
         getBrokerIDQuery.free;
@@ -280,7 +228,7 @@ begin
         getPairQuery.free;
         insertPairQuery.free;
      	//
-        log('PQWriterClass.destroy %s: Disconnecting ...', [ThisPairName]);
+        log('PQWriterClass.destroy %s: Disconnecting ...', [config.ThisPairName]);
         try
                 // Was es bis hier nicht zum Commit geschafft hat
                 // braucht ihn wohl auch nicht... :)
@@ -293,11 +241,11 @@ begin
                 	DBConnection.Free;
 		end;
 	except on E:Exception do begin
-        		Log('PQWriterClass.destroy %s: Error "%s"', [ThisPairName, E.Message]);
+        		Log('PQWriterClass.destroy %s: Error "%s"', [config.ThisPairName, E.Message]);
 		end;
        	end;
         isConnected:=false;
-        log('PQWriterClass.DBDisconnect %s: Disconnected...', [ThisPairName]);
+        log('PQWriterClass.DBDisconnect %s: Disconnected...', [config.ThisPairName]);
         // inherited destroy;
 end;
 
@@ -312,12 +260,12 @@ var
           LocTimeDelta			: Double;
 begin
      	if (not isConnected) then begin
-        	log('PQWriterClass.writeTick %s: Not connected ...', [ThisPairName]);
+        	log('PQWriterClass.writeTick %s: Not connected ...', [config.ThisPairName]);
 
         	exit(false);
 	end;
         if (pRetryCounter>=MaxRetries) then begin
-        	log('PQWriterClass.writeTick %s:  Max. retries reached "%d"', [ThisPairName, pRetryCounter]);
+        	log('PQWriterClass.writeTick %s:  Max. retries reached "%d"', [config.ThisPairName, pRetryCounter]);
                 exit(false);
         end;
         isRoqueTick:=false;
@@ -328,7 +276,7 @@ begin
                         // check whether we received a current tick with an older timestamp than before.
                         // This should not happen normally - but we should detect this because it
                         // gives the EA an unexecutable price as a signal.
-                        log('PQWriterClass.writeTick %s: ROQUE-TICK DETECTED! old=%d, new=%d', [ThisPairName, lastTickSecond, pSQLTick^.MQLTick.time]);
+                        log('PQWriterClass.writeTick %s: ROQUE-TICK DETECTED! old=%d, new=%d', [config.ThisPairName, lastTickSecond, pSQLTick^.MQLTick.time]);
                         isRoqueTick:=true;
                 end;
 	end;
@@ -357,30 +305,28 @@ begin
                 }
                 // Primary key
                 insertTickQuery.Params.ParamByName('PAIRID').AsInteger:=ThisPairID;
-                insertTickQuery.Params.ParamByName('LOCTIMESTAMP').AsString:=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', CurrLocTime) + ' ' + ThisMachineTimezone;
+                insertTickQuery.Params.ParamByName('LOCTIMESTAMP').AsString:=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', CurrLocTime) + ' ' + config.ThisMachineTimezone;
                 insertTickQuery.Params.ParamByName('TICKCOUNTER').AsInteger:=TickCounter;
                 // Payload
-                insertTickQuery.Params.ParamByName('TIMESTAMP').AsString:=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', CurrTickTime) + ' ' + ThisBrokerTimezone;
+                insertTickQuery.Params.ParamByName('TIMESTAMP').AsString:=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', CurrTickTime) + ' ' + pSQLTick^.BrokerTimeZone;
                 insertTickQuery.Params.ParamByName('ISROQUETICK').AsBoolean:=isRoqueTick;
                 insertTickQuery.Params.ParamByName('BID').AsFloat:=pSQLTick^.MQLTick.bid;
                 insertTickQuery.Params.ParamByName('ASK').AsFloat:=pSQLTick^.MQLTick.ask;
                 insertTickQuery.Params.ParamByName('LAST').AsFloat:=pSQLTick^.MQLTick.last;
                 insertTickQuery.Params.ParamByName('VOLUME').AsFloat:=pSQLTick^.MQLTick.volume;
-                // log('PQWriterClass.writeTick %s: Commencing ExecSQL ', [ThisPairName]);
+                // log('PQWriterClass.writeTick %s: Commencing ExecSQL ', [config.ThisPairName]);
                 insertTickQuery.ExecSQL;
-                // log('PQWriterClass.writeTick %s: Commencing Commit ', [ThisPairName]);
+                // log('PQWriterClass.writeTick %s: Commencing Commit ', [config.ThisPairName]);
                 DBTransaction.Commit;
                 //
                 LastTickSecond:=pSQLTick^.MQLTick.time;
                 PredLocTime:=CurrLocTime;
         except on E:Exception do begin
-                	log('PQWriterClass.writeTick %s: DBError "%s"', [ThisPairName, E.Message]);
-                        log('PQWriterClass.writeTick %s: DBError pRetry=%d',
-                        	[ThisPairName, pRetryCounter]
-                        );
+                	log('PQWriterClass.writeTick %s: DBError "%s"', [config.ThisPairName, E.Message]);
+                        log('PQWriterClass.writeTick %s: DBError pRetry=%d', [config.ThisPairName, pRetryCounter]);
                         if (DBConnection.Connected) then begin
                         	DBTransaction.Rollback;
-                                log('PQWriterClass.writeTick %s: DBError but still connected - retry %d', [ThisPairName, pRetryCounter]);
+                                log('PQWriterClass.writeTick %s: DBError but still connected - retry %d', [config.ThisPairName, pRetryCounter]);
         	                exit( writeTick(pSQLTick, pRetryCounter+1) );
                         end else begin
                                 exit(false);
@@ -398,34 +344,33 @@ end;
 
 procedure PQWriterClass.getBrokerData();
 begin
-	Log('PQWriterClass.getBrokerData %s: Invoking for Brokername="%s", BrokerTZ="%s", Demo=%d', [ThisPairName, ThisBrokerName, ThisBrokerTimeZone, ThisAccountIsDemo]);
-	getBrokerIDQuery.Params.ParamByName('BROKERNAME').AsString:=ThisBrokerName;
-        getBrokerIDQuery.Params.ParamByName('BROKERTIMEZONE').AsString:=ThisBrokerTimezone;
-        getBrokerIDQuery.Params.ParamByName('ACCOUNTISDEMO').AsBoolean:=(ThisAccountIsDemo<>0);
+	Log('PQWriterClass.getBrokerData %s: Invoking for Brokername="%s", Demo=%d', [config.ThisPairName, config.ThisBrokerName, config.ThisAccountIsDemo]);
+	getBrokerIDQuery.Params.ParamByName('BROKERNAME').AsString:=config.ThisBrokerName;
+        getBrokerIDQuery.Params.ParamByName('BROKERTIMEZONE').AsString:=config.ThisBrokerTimezone;
+        getBrokerIDQuery.Params.ParamByName('ACCOUNTISDEMO').AsBoolean:=(config.ThisAccountIsDemo<>0);
         Log('PQWriterClass.getBrokerData: Opening query');
         try
         	getBrokerIDQuery.Open;
 	except on E:Exception do begin
-                	log('PQClass.getBrokerData %s: DBError "%s"', [ThisPairName, E.Message]);
+                	log('PQClass.getBrokerData %s: DBError "%s"', [config.ThisPairName, E.Message]);
                         isInitalized:=false;
                 end;
 	end;
         Log('PQWriterClass.getBrokerData: Query opened');
-	// Die Query produziert entweder 1 oder 0 Results
 	if (getBrokerIDQuery.EOF) then begin
                 // Neuen Broker anlegen und die ID erneut abholen
-                Log('PQWriterClass.getBrokerData %s: Broker "%s" does not exist - creating ...', [ThisPairName, ThisBrokerName]);
+                Log('PQWriterClass.getBrokerData %s: Broker "%s" does not exist - creating ...', [config.ThisPairName, config.ThisBrokerName]);
                 getBrokerIDQuery.close;
                 try
-                        insertBrokerIDQuery.Params.ParamByName('BROKERNAME').AsString:=ThisBrokerName;
-                        insertBrokerIDQuery.Params.ParamByName('BROKERTIMEZONE').AsString:=ThisBrokerTimezone;
-                        insertBrokerIDQuery.Params.ParamByName('ACCOUNTISDEMO').AsBoolean:=(ThisAccountIsDemo<>0);
+                        insertBrokerIDQuery.Params.ParamByName('BROKERNAME').AsString:=config.ThisBrokerName;
+                        insertBrokerIDQuery.Params.ParamByName('BROKERTIMEZONE').AsString:=config.ThisBrokerTimezone;
+                        insertBrokerIDQuery.Params.ParamByName('ACCOUNTISDEMO').AsBoolean:=(config.ThisAccountIsDemo<>0);
                         insertBrokerIDQuery.ExecSQL;
                         DBTransaction.Commit;
                         getBrokerData();
                         exit;
 		except on E:Exception do begin
-                		log('PQClass.getBrokerData %s: DBError "%s"', [ThisPairName, E.Message]);
+                		log('PQClass.getBrokerData %s: DBError "%s"', [config.ThisPairName, E.Message]);
                 	        insertBrokerIDQuery.close;
         	                isInitalized:=false;
 	                        exit;
@@ -434,8 +379,7 @@ begin
 
 	end;
         ThisBrokerID:=getBrokerIDQuery.FieldByName('broker_id').AsInteger;
-        // Einen MT4-Timestamp aus dem Resultat erzeugen
-        Log('PQWriterClass.getBrokerData %s: Fetched broker_id=%d for Broker="%s"', [ThisPairName, ThisBrokerID, ThisBrokerName]);
+        Log('PQWriterClass.getBrokerData %s: Fetched broker_id=%d for Broker="%s"', [config.ThisPairName, ThisBrokerID, config.ThisBrokerName]);
         getBrokerIDQuery.close;
 
 end;
@@ -445,14 +389,14 @@ procedure PQWriterClass.getPairData();
 begin
         if (not isInitalized) then
         	exit;
-	Log('PQWriterClass.getPairData %s: Invoking for Pairname="%s" - broker_id=%d', [ThisPairName, ThisPairName, ThisBrokerID]);
-	getPairQuery.Params.ParamByName('THISPAIRNAME').AsString:=ThisPairName;
+	Log('PQWriterClass.getPairData %s: Invoking for Pairname="%s" - broker_id=%d', [config.ThisPairName, config.ThisPairName, ThisBrokerID]);
+	getPairQuery.Params.ParamByName('THISPAIRNAME').AsString:=config.ThisPairName;
         getPairQuery.Params.ParamByName('BROKERID').AsInteger:=ThisBrokerID;
-        Log('PQWriterClass.getPairData %s: Opening query', [ThisPairName]);
+        Log('PQWriterClass.getPairData %s: Opening query', [config.ThisPairName]);
         try
         	getPairQuery.Open;
 	except on E:Exception do begin
-                	log('PQWriterClass.getPairData %s: Open DBError "%s"', [ThisPairName, E.Message]);
+                	log('PQWriterClass.getPairData %s: Open DBError "%s"', [config.ThisPairName, E.Message]);
                         isInitalized:=false;
                 end;
 	end;
@@ -460,19 +404,19 @@ begin
 	// Die Query produziert entweder 1 oder 0 Results
 	if (getPairQuery.EOF) then begin
                 // Neues Pair/Timeframe anlegen und die ID erneut abholen
-                Log('PQWriterClass.getPairData %s: Pair/broker_id("%s", %d) does not exist - creating ...', [ThisPairName, ThisPairName, ThisBrokerID]);
+                Log('PQWriterClass.getPairData %s: Pair/broker_id("%s", %d) does not exist - creating ...', [config.ThisPairName, config.ThisPairName, ThisBrokerID]);
                 getPairQuery.close;
                 try
-                        insertPairQuery.Params.ParamByName('THISPAIRNAME').AsString:=ThisPairName;
+                        insertPairQuery.Params.ParamByName('THISPAIRNAME').AsString:=config.ThisPairName;
                         insertPairQuery.Params.ParamByName('BROKERID').AsInteger:=ThisBrokerID;
-                        insertPairQuery.Params.ParamByName('THISPOINT').AsFloat:=ThisPairPoint;
-                        insertPairQuery.Params.ParamByName('THISDIGITS').AsFloat:=ThisPairDigits;
+                        insertPairQuery.Params.ParamByName('THISPOINT').AsFloat:=config.ThisPairPoint;
+                        insertPairQuery.Params.ParamByName('THISDIGITS').AsFloat:=config.ThisPairDigits;
                         insertPairQuery.ExecSQL;
                         DBTransaction.Commit;
                         getPairData();
                         exit;
 		except on E:Exception do begin
-                		log('PQWriterClass.getPairData %s: Insert DBError "%s"', [ThisPairName, E.Message]);
+                		log('PQWriterClass.getPairData %s: Insert DBError "%s"', [config.ThisPairName, E.Message]);
         	                isInitalized:=false;
 	                        insertPairQuery.close;
                         	exit;
@@ -481,7 +425,7 @@ begin
 
 	end;
         ThisPairID:=getPairQuery.FieldByName('pair_id').AsInteger;
-        Log('PQWriterClass.getPairData %s: Fetched pair_id=%d for pair/broker_id("%s", %d)', [ThisPairName, ThisPairID, ThisPairName, ThisBrokerID]);
+        Log('PQWriterClass.getPairData %s: Fetched pair_id=%d for pair/broker_id("%s", %d)', [config.ThisPairName, ThisPairID, config.ThisPairName, ThisBrokerID]);
         getPairQuery.close;
 
 end;
@@ -490,38 +434,38 @@ procedure PQWriterClass.getAliasData();
 begin
         if (not isInitalized) then
         	exit;
-	Log('PQWriterClass.getAliasData %s: Invoking for Pairname="%s" - broker_id=%d', [ThisPairName, ThisPairName, ThisBrokerID]);
+	Log('PQWriterClass.getAliasData %s: Invoking for Pairname="%s" - broker_id=%d', [config.ThisPairName, config.ThisPairName, ThisBrokerID]);
         // This checks for a complete Alias-Pair relation
-	getAliasPairQuery.Params.ParamByName('THISPAIRNAME').AsString:=ThisPairName;
+	getAliasPairQuery.Params.ParamByName('THISPAIRNAME').AsString:=config.ThisPairName;
         getAliasPairQuery.Params.ParamByName('BROKERID').AsInteger:=ThisBrokerID;
-        Log('PQWriterClass.getAliasData %s: Opening Alias-Pair query', [ThisPairName]);
+        Log('PQWriterClass.getAliasData %s: Opening Alias-Pair query', [config.ThisPairName]);
         try
         	getAliasPairQuery.Open;
 	except on E:Exception do begin
-                	log('PQWriterClass.getAliasData %s: Open DBError "%s"', [ThisPairName, E.Message]);
+                	log('PQWriterClass.getAliasData %s: Open DBError "%s"', [config.ThisPairName, E.Message]);
                 end;
 	end;
-        Log('PQWriterClass.getAliasData %s: Query opened - fetching results ... ', [ThisPairName]);
+        Log('PQWriterClass.getAliasData %s: Query opened - fetching results ... ', [config.ThisPairName]);
 	// The AliaspairQuery produces exactly 0 or 1 result
 	if (getAliasPairQuery.EOF) then begin
         	getAliasPairQuery.Close;
                 // Check whether we have to insert a new Alias
                 // or simply a new alias-pair relation
-                getAliasQuery.Params.ParamByName('THISPAIRNAME').AsString:=ThisPairName;
-                Log('PQWriterClass.getAliasData %s: Opening Alias query', [ThisPairName]);
+                getAliasQuery.Params.ParamByName('THISPAIRNAME').AsString:=config.ThisPairName;
+                Log('PQWriterClass.getAliasData %s: Opening Alias query', [config.ThisPairName]);
 	        try
 	        	getAliasQuery.Open;
 		except on E:Exception do begin
-        	        	log('PQWriterClass.getAliasData %s: Open DBError "%s"', [ThisPairName, E.Message]);
+        	        	log('PQWriterClass.getAliasData %s: Open DBError "%s"', [config.ThisPairName, E.Message]);
                                 isInitalized:=false;
 	                end;
 		end;
-        	Log('PQWriterClass.getAliasData %s: Query opened - fetching results ... ', [ThisPairName]);
+        	Log('PQWriterClass.getAliasData %s: Query opened - fetching results ... ', [config.ThisPairName]);
                 if (getAliasQuery.EOF) then begin
                 	// Alias name does not exist - create!
-                        Log('PQWriterClass.getAliasData %s: Aliasname does not exist - creating new ... ', [ThisPairName]);
+                        Log('PQWriterClass.getAliasData %s: Aliasname does not exist - creating new ... ', [config.ThisPairName]);
                         try
-                        	insertAliasQuery.Params.ParamByName('THISPAIRNAME').AsString:=ThisPairName;
+                        	insertAliasQuery.Params.ParamByName('THISPAIRNAME').AsString:=config.ThisPairName;
 	                        insertAliasQuery.ExecSQL;
         	                DBTransaction.Commit();
                 	        InsertAliasQuery.Close();
@@ -530,17 +474,17 @@ begin
         	                // No recursion here!
                 	        exit;
                         except on E:Exception do begin
-                        		log('PQWriterClass.getAliasData %s: Insert DBError "%s"', [ThisPairName, E.Message]);
+                        		log('PQWriterClass.getAliasData %s: Insert DBError "%s"', [config.ThisPairName, E.Message]);
                                         isInitalized:=false;
 				end;
 			end;
 		end else begin
                 	ThisAliasID:=getAliasQuery.FieldByName('alias_id').AsInteger;
-                        Log('PQWriterClass.getAliasData %s: Fetched alias_id=%d for newly created alias name ... ', [ThisPairName, ThisAliasID]);
+                        Log('PQWriterClass.getAliasData %s: Fetched alias_id=%d for newly created alias name ... ', [config.ThisPairName, ThisAliasID]);
                         getAliasQuery.close;
 		end;
 
-                Log('PQWriterClass.getAliasData %s: Alias relation for Pair/broker_id("%s", %d) does not exist - creating ...', [ThisPairName, ThisPairName, ThisBrokerID]);
+                Log('PQWriterClass.getAliasData %s: Alias relation for Pair/broker_id("%s", %d) does not exist - creating ...', [config.ThisPairName, config.ThisPairName, ThisBrokerID]);
                 try
                         insertAliasPairQuery.Params.ParamByName('THISPAIRID').AsInteger:=ThisPairID;
                         insertAliasPairQuery.Params.ParamByName('THISALIASID').AsInteger:=ThisAliasID;
@@ -550,7 +494,7 @@ begin
                         getAliasData();
                         exit;
 		except on E:Exception do begin
-                	log('PQWriterClass.getAliasData %s: Insert DBError "%s"', [ThisPairName, E.Message]);
+                	log('PQWriterClass.getAliasData %s: Insert DBError "%s"', [config.ThisPairName, E.Message]);
                         insertAliasPairQuery.close;
                         isInitalized:=false;
                         exit;
@@ -561,13 +505,13 @@ begin
 	        ThisAliasID:=getAliasPairQuery.FieldByName('alias_id').AsInteger;
         	ThisAliasName:=getAliasPairQuery.FieldByName('aliasname').AsString;
 	except on E:Exception do begin
-                	log('PQWriterClass.getAliasData %s: Insert DBError "%s"', [ThisPairName, E.Message]);
+                	log('PQWriterClass.getAliasData %s: Insert DBError "%s"', [config.ThisPairName, E.Message]);
                         getAliasPairQuery.close;
                         isInitalized:=false;
                         exit;
                 end;
 	end;
-        Log('PQWriterClass.getAliasData %s: Fetched alias_id=%d (%s) for pair/pair_id/broker_id("%s", %d, %d)', [ThisPairName, ThisAliasID, ThisAliasName, ThisPairName, ThisPairID, ThisBrokerID]);
+        Log('PQWriterClass.getAliasData %s: Fetched alias_id=%d (%s) for pair/pair_id/broker_id("%s", %d, %d)', [config.ThisPairName, ThisAliasID, ThisAliasName, config.ThisPairName, ThisPairID, ThisBrokerID]);
 end;
 
 end.
