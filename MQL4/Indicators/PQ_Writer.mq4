@@ -29,6 +29,7 @@ extern string	LabelSize=80;
 
 // 
 static string	BrokerTimezone="UTC";
+static string	LocalTimezone="Europe/Berlin";
 static string	DBHostName="192.168.186.199";
 static int	DBPortnumber=5432;
 static string 	DBDatabaseName="mtforex";
@@ -40,6 +41,7 @@ static int 	PollingInterval=100;
 #import "mt4psql.dll"
 	int pqInit(
 		string	pBrokerTimezone,
+		string	pMachineTimezone,
 		string	pEAName,
 		string	pPairName,
 		string	pBrokerName,
@@ -62,7 +64,7 @@ static int 	PollingInterval=100;
 		int pHdl,
 		MqlTick &pTick
 	);
-	bool isValidHandle(int pHdl);
+	int isValidHandle(int pHdl);
 #import
 static MqlTick this_tick, last_tick;
 static bool isInitialized=false;
@@ -91,6 +93,8 @@ void init() {
 			p[1]=StringTrimLeft(StringTrimRight(p[1]));
 			if (p[0]=="BrokerTimezone") 
 				BrokerTimezone=p[1];
+			if (p[0]=="LocalTimezone") 
+				LocalTimezone=p[1];
 			if (p[0]=="DBHostName") 
 				DBHostName=p[1];
 			if (p[0]=="DBPortnumber") 
@@ -108,6 +112,7 @@ void init() {
 		}
 		FileClose(fh);
 		Print("init: BrokerTimezone=\"" + BrokerTimezone + "\"");
+		Print("init: LocalTimezone=\"" + LocalTimezone + "\"");
 		Print("init: DBHostName=\"" + DBHostName + "\"");
 		Print("init: DBPortnumber=\"" + DBPortnumber + "\"");
 		Print("init: DBDatabaseName=\"" + DBDatabaseName + "\"");
@@ -119,12 +124,9 @@ void init() {
 		if (ObjectFind(pName)<0) {
 			ObjectCreate(pName, OBJ_LABEL, 0, 0, 0);
 		}
-		// ObjectSet(pName, OBJPROP_CORNER, pCorner);
-		// ObjectSet(pName, OBJPROP_XDISTANCE, pX);
-		// ObjectSet(pName, OBJPROP_YDISTANCE, pY);
-		// ObjectSet(pName, OBJPROP_TEXTSIZE, 
-		ObjectSetText(pName, LabelText, LabelSize, "Arial", LightGray);
+		ObjectSetText(pName, LabelText, LabelSize, "Arial", Red);
 		ObjectSet(pName, OBJPROP_BACK, true);
+		ObjectSetInteger(0, pName, OBJPROP_SELECTABLE, false);
 	} else {
 		int err=GetLastError();
 		Print("init: ERROR - could not open \"" + fName + "\" because of: " + err + " " + ErrorDescription(err) );
@@ -139,15 +141,18 @@ void deinit() {
 }
 
 void start() {
+	static bool isSQLConnected=false;
 	if (!isConfigRead) 
 		return;
-	if (pqHandle==0) {
+	if (!isSQLConnected) {
 		// during startup of the terminal the AccountCompany() and 
 		// other variables are not initialized properly.
 		// So we have to wait until the startup is complete.
 		if (AccountCompany()!="") {
+			Print("start: Establishing connection to \"" + DBHostName + "://" + DBUserName + "@" + DBDatabaseName + "\"" );
 			pqHandle=pqInit(
 				BrokerTimezone,
+				LocalTimezone,
 				"PQ_Writer",
 				Symbol(),
 				AccountCompany(),
@@ -163,9 +168,23 @@ void start() {
 				DBPassword,
 				DBMaxRetries
 			);
+			Print("start: Checking connection to \"" + DBHostName + "://" + DBUserName + "@" + DBDatabaseName + "\"" );
+			// Retry connection "if (!IsSQLConnected)"
+			isSQLConnected=(isValidHandle(pqHandle)!=0);
+			Print("start: Connectionhandle is " + pqHandle + " isValidHandle=" + isSQLConnected );
+			if (!isSQLConnected) {
+				Print("start: Cleaning up handle=" + pqHandle );
+				pqDeInit(pqHandle);
+				pqHandle=0;
+				Sleep(PollingInterval);
+			} else {
+				if (ObjectFind(pName)>=0) {
+					ObjectSetText(pName, LabelText, LabelSize, "Arial", LightGray);
+				}
+			}
 		}
 	} else {
-		// TODO: Retry connection "if (!isValidHandle)"
+		
 		if (isInitialized) {
 			if (isDebug) {
 				uint startT=GetTickCount();

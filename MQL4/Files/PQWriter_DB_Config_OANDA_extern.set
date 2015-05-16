@@ -1,0 +1,56 @@
+# 
+#
+# Timezone of your broker. Needed to recalculate the tick time stamps
+# Take the name from the table pg_timezone_names of PostgreSQL
+#
+BrokerTimezone=America/New_York
+
+# Timezone of your machine. Needed to recalculate the local time stamps
+# Take the name from the table pg_timezone_names of PostgreSQL
+#
+LocalTimezone=Europe/Berlin
+
+# IP address of your PostgreSQL machine.
+DBHostName=192.168.102.254
+
+# Port number the PostgreSQL server is listening on
+DBPortnumber=5432
+
+# Name of the database to connect to
+DBDatabaseName=mtforex
+
+# Username to use for the database connection
+DBUserName=postgres
+
+# Password to use for the database connection
+DBPassword=
+
+# Number of retries after a temporary failure
+DBMaxRetries=100
+
+# Milliseconds to poll the tick queue
+PollingInterval=500
+
+
+# ###############################################################
+# Below there's the two-process solutions configuration only.
+# Nothing to see here for the first multithreaded app.
+# Number of database writer threads
+DBWriterThreads=5
+
+# Name of the shared memory region to queue the ticks from the charts
+# This name gets the values "_TICKS", "_PAIRS" and "_BROKERS" appended
+# to address the shared memory regions and the semaphores.
+ShareMemNamePrefix=MT4_PQ_SHAREMEM4
+
+# Size of the shared memory region to queue the ticks from the charts
+#
+# This value is the max number of ticks multiplied with the max number of charts
+# multiplied with the max number of brokers multiplied with the size of a tick 
+# row which simultaneously exported to SQL
+#
+# If you see the message "Tick is lost" then this region is too small and you 
+# should increase one of the three parameters bewlos
+MaxBrokers=10
+MaxCharts=40
+MaxTicks=1000
