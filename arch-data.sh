@@ -42,7 +42,7 @@ HOLDINTERVAL="7 days"
 EXPDATE=`date +"%Y-%m-%d-%H-%M"`
 #
 # Get the last keep time into a variable to ensure consistent snapshots
-KEEPDATE=`$PSQL -c "copy (select now() - interval '$HOLDINTERVAL') to stdout"`
+KEEPDATE=`$PSQL -c "copy (select to_char(now() - interval '$HOLDINTERVAL', 'yyyy-mm-dd hh24:mi:ss') ) to stdout"`
 #
 # Fetch the list of brokers from SQL and store it into a README file
 #
@@ -56,13 +56,15 @@ echo "$BROKERQUERY" | $PSQL | while read b_id b_name ; do
 	# Loop over all pairs from the current broker
 	PAIRQUERY="copy (select pair_id, pairname from t_mt4_pairdata where broker_id=$b_id ) to stdout;"
 	echo "$PAIRQUERY" | $PSQL | while read p_id p_name ; do
+		echo "Checking $p_name (ID=$p_id) from $b_name (ID=$b_id) for exportable rows..."
 		# get the number of rows to export
 		ROWCOUNT=`$PSQL -c "copy (select count(*) from t_mt4_ticks where pair_id=$p_id and ttimestamp<timestamp '$KEEPDATE') to stdout"`
-		if [ $ROWCOUNT -gt 0 ] ; then 
+		if [ $ROWCOUNT -gt 0 ] ; then
+			FROMDATE=`$PSQL -c "copy (select to_char(ttimestamp, 'yyyy-mm-dd hh24:mi:ss') from t_mt4_ticks order by ttimestamp asc limit 1) to stdout"`; 
 			PAIRDIR="$BASEDIR$b_id/$p_name"
 			test -d $PAIRDIR || mkdir -p "$PAIRDIR"
-			FN="$BASENAME-$KEEPDATE-$EXPDATE$BASEEXT"
-			echo "Exporting $p_name (ID=$p_id) from $b_name (ID=$b_id) into $FN ($ROWCOUNT until $KEEPDATE)"
+			FN="${BASENAME}-from-${FROMDATE}-until-${KEEPDATE}-${EXPDATE}${BASEEXT}"
+			echo "Exporting $p_name (ID=$p_id) from $b_name (ID=$b_id) into $FN ($ROWCOUNT rows from $FROMDATE until $KEEPDATE)"
 			EXPQUERY=`cat <<EOF
 			copy (
 				select 
