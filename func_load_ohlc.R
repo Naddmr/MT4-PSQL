@@ -78,7 +78,6 @@ fetch_ohlc <- function(
 	
 	return(rc)
 }
-nrow(oanda)
 
 oanda  <- fetch_ohlc(OANDA_BROKER_ID, PAIR_NAME, TIMEFRAME_NAME, FROM_TIME, UNTIL_TIME)
 fxcm   <- fetch_ohlc(FXCM_BROKER_ID, PAIR_NAME, TIMEFRAME_NAME, FROM_TIME, UNTIL_TIME)
@@ -97,5 +96,16 @@ chart_Series(prices,
 			 show.grid=TRUE
 )
 
+# but then - this works too... 
 
+source("func_load_ticks.R")
+
+oanda_ohlc <- to.period(oanda, k=30, "seconds", OHLC=TRUE)
+fxcm_ohlc <-  to.period(fxcm, k=30, "seconds", OHLC=TRUE)
+prices <- oanda_ohlc
+chart_Series(prices, 
+			 name=paste("OANDA ", PAIR_NAME, " in TF ", "S30", sep=""),
+			 log.scale=FALSE,
+			 show.grid=TRUE
+)
 

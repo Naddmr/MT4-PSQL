@@ -74,9 +74,13 @@ comment on column t_mt4_aliasnames.alias_id	is 'Primary key of the aliasnames ta
 comment on column t_mt4_aliasnames.pairname	is 'Common aliasname of the pair (e.g. SP500 for SPX500USD SPX500 ...)';
 
 insert into t_mt4_aliasnames (pairname) values 
-	('SPX'),	-- 1
-	('DOW'),	-- 2
-	('DAX');	-- 3
+	('DUMMY'),	-- 1
+	('SPX'),	-- 2
+	('DOW'),	-- 3
+	('DAX'),	-- 4
+	('NAS100'),	-- 5
+	('Gold'),	-- 6
+	('Silver');	-- 7
 
 
 drop table if exists t_mt4_pairaliases;
@@ -170,10 +174,9 @@ comment on column t_mt4_ohlc.dTickVolume	is 'Tick volume. Count of all ticks of 
 -- now populate the tables to get some templates
 insert into t_mt4_brokers (brokername, broker_timezone, is_demo) values ('Dummybroker', 'UTC', true);
 insert into t_mt4_pairdata (broker_id, pairname, point, digits) values ( (select broker_id from t_mt4_brokers order by timecreated desc limit 1), 'DUMMY', 1, 0);
-insert into t_mt4_aliasnames (pairname) values ('DUMMY');
 insert into t_mt4_pairaliases (pair_id, alias_id) values 
 	((select pair_id from t_mt4_pairdata order by timecreated desc limit 1),
-	 (select alias_id from t_mt4_aliasnames order by timecreated desc limit 1));
+	 (select alias_id from t_mt4_aliasnames where pairname='DUMMY' order by timecreated desc limit 1));
 insert into t_mt4_pair_timeframes (pair_id, ttimeframe, timeframe_name) values
 	((select pair_id from t_mt4_pairdata order by timecreated desc limit 1),	        30, 	'S30'),
 	((select pair_id from t_mt4_pairdata order by timecreated desc limit 1),	        60, 	'M1'),
@@ -189,8 +192,8 @@ insert into t_mt4_pair_timeframes (pair_id, ttimeframe, timeframe_name) values
 --
 --
 -- include functions to create timeframe normalized timestamp values
-\i func_normalize_timeframe.sql
+-- \i func_normalize_timeframe.sql
 --
 -- Include the function to create OHLC values from ticks
-\i func_do_populate_ohlc.sql
+-- \i func_do_populate_ohlc.sql
 

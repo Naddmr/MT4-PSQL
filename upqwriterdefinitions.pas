@@ -41,11 +41,43 @@ end;
 pMQLTickRow = ^TMQLTickRow;
 // A tick row with milliseconds
 TSQLTickRow = packed record
+        pairID		: Integer;
         MQLTick		: TMQLTickRow;
-        ts		: TTimeStamp;
+        localTime	: TDateTime;
+        TickTime	: TDateTime;
+        TickCounter	: Integer;
 end;
 pSQLTickRow = ^TSQLTickRow;
-
+//
+// A broker definition row
+TSQLBrokerRow = packed record
+        broker_id	: Integer;
+        is_demo		: boolean;
+        broker_name	: AnsiString;
+        broker_timezone	: AnsiString;
+end;
+pSQLBrokerRow = ^TSQLBrokerRow;
+//
+// A pair definition row
+TSQLPairRow = packed record
+        pair_id		: Integer;
+        broker_id	: Integer;
+        pair_name	: AnsiString;
+        point		: Double;
+        Digits		: Double;
+end;
+pSQLPairRow = ^TSQLPairRow;
+//
+TFiFoPointer = packed record
+        read_idx	: DWORD;
+        write_idx	: DWORD;
+end;
+//
+const
+	BROKER_SHAREMEM_SUFFIX	=	'_BROKERS';
+        PAIR_SHAREMEM_SUFFIX	=	'_PAIRS';
+        TICKS_SHAREMEM_SUFFIX	=	'_TICKS';
+        SEM_MUTEX_PREFIX	=	'SEM_';
 
 procedure Log(AMessage: WideString);
 procedure Log(AMessage: WideString; AArgs: array of const);

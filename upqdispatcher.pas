@@ -36,6 +36,7 @@ PQWriterThreadClass = Class (TThread)
 protected
         // Parameters
         ThisBrokerTimezone		: AnsiString;
+        ThisMachineTimezone		: AnsiString;
         ThisBrokerName			: AnsiString;
         ThisAccountIsdemo		: DWORD;
 	ThisEAName			: AnsiString;
@@ -61,6 +62,7 @@ public
         isValid				: Boolean;
         constructor create(
                 pBrokerTimeZone		: WideString;
+                pMachineTimeZone	: WideString;
         	pEAName 		: WideString;
         	pPairName 		: WideString;
         	pBrokerName		: WideString;
@@ -91,11 +93,11 @@ PQDispatcher = Class
 protected
         PQWriterThread			: PQWriterThreadClass;
         ThisPairName			: AnsiString;
-
 public
         isValid				: Boolean;
 	constructor create(
                 pBrokerTimeZone		: WideString;
+                pMachineTimeZone	: WideString;
 		pEAName 		: WideString;
 		pPairName 		: WideString;
                 pBrokerName		: WideString;
@@ -117,6 +119,8 @@ public
         procedure DispatchTick(
                 pSQLTick		: pSQLTickRow
         );
+        //
+        function getIsvalid() : Integer;
 private
 End;
 
@@ -125,6 +129,7 @@ implementation
 // ######################### PQWriterThreadClass
 constructor PQWriterThreadClass.create(
         pBrokerTimeZone		: WideString;
+        pMachineTimeZone	: Widestring;
         pEAName 		: WideString;
         pPairName 		: WideString;
         pBrokerName		: WideString;
@@ -143,12 +148,14 @@ constructor PQWriterThreadClass.create(
 var
         i			: DWORD;
 begin
+        ThisPairName:=Utf8ToAnsi(pPairName);
 	log('PQWriterThreadClass.create %s: Invoking ...', [ThisPairName]);
-        ThisBrokerTimezone:=pBrokerTimeZone;
-        ThisBrokerName:=pBrokerName;
+        ThisBrokerTimezone:=Utf8ToAnsi(pBrokerTimeZone);
+        ThisMachineTimezone:=Utf8ToAnsi(pMachineTimeZone);
+        ThisBrokerName:=Utf8ToAnsi(pBrokerName);
         ThisAccountIsDemo:=pIsDemo;
-     	ThisEAName:=pEAName;
-     	ThisPairName:=pPairName;
+     	ThisEAName:=Utf8ToAnsi(pEAName);
+
         ThisTimeframe:=pTimeFrame;
         ThisPairPoint:=pPoint;
         ThisPairDigits:=pDigits;
@@ -167,12 +174,12 @@ begin
         PQWriter:=NIL;
         TickQueue:=NIL;
         InitializeCriticalSection(PushPullCriticalSection);
-        PQWriter:=ReConnect();
-        i:=1;
-        while (not PQWriter.isValid) and (i<=MaxRetries) do begin
-        	Sleep(PollingInterval);
-                PQWriter:=ReConnect();
-	end;
+        PQWriter:=self.ReConnect();
+ //       i:=1;
+ //       while (not PQWriter.isValid) and (i<=(MaxRetries div 10) ) do begin
+ //       	Sleep(PollingInterval);
+ //               PQWriter:=self.ReConnect();
+	//end;
 	if (PQWriter.isValid) then begin
 	        //
 	        TickQueue:=TFPList.Create();
@@ -189,27 +196,30 @@ destructor PQWriterThreadClass.Destroy();
 var
         i	: DWORD;
 Begin
-	log('PQWriterThreadClass.Destroy %s: Invoking ...', [ThisPairName]);
+	log('PQWriterThreadClass.Destroy %s: Invoking to destroy thread...', [ThisPairName]);
         isStopping:=true;
-        i:=1;
-        while (not isStopped) and (i<=MaxRetries) do begin
-		// Awake the thread loop again to get it dead :)
-                self.resume;
-                sleep(PollingInterval);
-                log('PQWriterThreadClass.Destroy %s: Waiting ...', [ThisPairName]);
-                inc(i);
-	end;
-        if (i>=MaxRetries) then begin
-        	log('PQWriterThreadClass.Destroy %s: Timeout - stopping immediately...', [ThisPairName]);
-                self.Terminate;
-	end;
+        if (self.isValid) then begin
+	        i:=1;
+	        while (not isStopped) and (i<=MaxRetries) do begin
+			// Awake the thread loop again to get it dead :)
+	                self.resume;
+	                sleep(PollingInterval);
+	                log('PQWriterThreadClass.Destroy %s: Waiting for thread termination ...', [ThisPairName]);
+	                inc(i);
+		end;
+	        if (i>=MaxRetries) then begin
+        		log('PQWriterThreadClass.Destroy %s: Timeout - stopping immediately...', [ThisPairName]);
+			self.Terminate;
+		end;
+        end;
         if (TickQueue<>NIL) then
 		TickQueue.free;
         if (PQWriter<>NIL) then
         	PQWriter.free;
         DeleteCriticalSection(PushPullCriticalSection);
+        log('PQWriterThreadClass.Destroy %s: Destroyed thread ...', [ThisPairName]);
 	inherited Destroy;
-        log('PQWriterThreadClass.Destroy %s: Invoking ...', [ThisPairName]);
+
 end;
 
 
@@ -217,11 +227,14 @@ function PQWriterThreadClass.Reconnect() : PQWriterClass;
 begin
 	// Destroy old PQWriter when not NIL.
         if (PQWriter<>NIL) then begin
+                log('PQWriterThreadClass.Reconnect %s: destroying old connection ...', [ThisPairName]);
                 PQWriter.Free;
 	end;
         // Create a new PQWriter instance and try a new
+        log('PQWriterThreadClass.Reconnect %s: Creating new connection ...', [ThisPairName]);
         exit(PQWriterClass.Create(
         			ThisBrokerTimezone,
+                                ThisMachineTimezone,
      				ThisEAName,
                                 ThisPairName,
                                 ThisBrokerName,
@@ -307,6 +320,7 @@ end;
 // ######################### PQDispatcher
 constructor PQDispatcher.create(
         pBrokerTimeZone		: WideString;
+        pMachineTimeZone	: WideString;
 	pEAName 		: WideString;
         pPairName 		: WideString;
         pBrokerName		: WideString;
@@ -325,9 +339,10 @@ constructor PQDispatcher.create(
 begin
         ThisPairName:=Utf8ToAnsi(pPairName);
      	log('PQDispatcher.create %s: Invoking ...', [ThisPairName]);
-        isValid:=false;
+        self.isValid:=false;
         PQWriterThread:=PQWriterThreadClass.Create(
         	pBrokerTimeZone,
+                pMachineTimezone,
         	pEAName,
                 pPairName,
                 pBrokerName,
@@ -345,20 +360,21 @@ begin
         );
         if (PQWriterThread.isValid) then begin
 	        PQWriterThread.Start;
-		log('PQDispatcher.create %s: Created ...', [ThisPairName]);
-                isValid:=true;
+                self.isValid:=true;
+		log('PQDispatcher.create %s: Successfully created new writer thread, isValid=%d ...', [ThisPairName, Integer(self.isValid)]);
 	end else begin
-        	log('PQDispatcher.create %s: Error during Thread initialisation ...', [ThisPairName]);
-                isValid:=false;
+                self.isValid:=false;
+                log('PQDispatcher.create %s: Error during Thread initialisation isValid=%d ...', [ThisPairName, Integer(self.isValid)]);
 	end;
 end;
 
 destructor PQDispatcher.destroy();
 begin
         log('PQDispatcher.stop %s: Destroying ...', [ThisPairName]);
+        self.isValid:=false;
         PQWriterThread.Free;
-        inherited destroy;
         log('PQDispatcher.stop %s: Destroyed ...', [ThisPairName]);
+        inherited destroy;
 end;
 
 procedure PQDispatcher.DispatchTick(
@@ -369,7 +385,16 @@ begin
         	PQWriterThread.PushTick(pSQLTick);
 end;
 
-
+function PQDispatcher.getIsvalid() : Integer;
+var
+        rc		: Integer;
+begin
+        rc:=0;
+        if (self.isValid) then
+                rc:=1;
+        log('PQDispatcher.getIsvalid: rc=%d', [ rc ] );
+        exit(rc);
+end;
 
 end.
 

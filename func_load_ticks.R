@@ -24,9 +24,9 @@
 #####################
 OANDA_BROKER_ID = 2
 FXCM_BROKER_ID = 1
-PAIR <- "USDJPY"
+PAIR_NAME <- "USDJPY"
 FROM_TIME  <- "2015-05-08 14:25:00"
-UNTIL_TIME <- "2015-05-08 14:38:00"
+UNTIL_TIME <- "2015-05-08 15:00:00"
 thisTZ <- "Europe/Berlin"
 #####################
 #
@@ -82,15 +82,15 @@ fetch_ticks <- function(
 	return(rc)
 }
 
-oanda <- fetch_ticks(OANDA_BROKER_ID, PAIR, FROM_TIME, UNTIL_TIME)
-fxcm  <- fetch_ticks(FXCM_BROKER_ID, PAIR, FROM_TIME, UNTIL_TIME)
+oanda <- fetch_ticks(OANDA_BROKER_ID, PAIR_NAME, FROM_TIME, UNTIL_TIME)
+fxcm  <- fetch_ticks(FXCM_BROKER_ID, PAIR_NAME, FROM_TIME, UNTIL_TIME)
 #
 prices <- as.zoo(fxcm)
 #
 from_x <- first(index(prices))
 until_x <- last(index(prices))
 
-plotTitle <- paste("FXCM", PAIR, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
+plotTitle <- paste("FXCM", PAIR_NAME, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
 colors=rainbow(ncol(prices))
 print(xyplot(prices, 
 		col=colors, 
@@ -104,7 +104,7 @@ print(xyplot(prices,
 prices <- as.zoo(oanda)
 from_x <- first(index(prices))
 until_x <- last(index(prices))
-plotTitle <- paste("OANDA", PAIR, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
+plotTitle <- paste("OANDA", PAIR_NAME, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
 colors=rainbow(ncol(prices))
 print(xyplot(prices, 
 			 col=colors, 
@@ -116,7 +116,7 @@ print(xyplot(prices,
 )
 
 prices<-as.zoo(merge.xts(fxcm, oanda))
-plotTitle <- paste("BOTH", PAIR, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
+plotTitle <- paste("BOTH", PAIR_NAME, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
 colors=rainbow(ncol(prices))
 print(xyplot(prices, 
 			 col=colors, 
@@ -126,3 +126,6 @@ print(xyplot(prices,
 			 screens = 1, 
 			 xlab="time", ylab="price")
 )
+
+
+

@@ -37,6 +37,7 @@ PQWriterClass = class
 protected
         // Parameters ...
         ThisBrokerTimezone		: AnsiString;
+        ThisMachineTimezone		: AnsiString;
         ThisBrokerName			: AnsiString;
         ThisAccountIsDemo		: DWORD;
 	ThisEAName			: AnsiString;
@@ -79,6 +80,7 @@ protected
 public
 	constructor create(
                 pBrokerTimeZone		: WideString;
+                pMachineTimeZone	: WideString;
 		pEAName 		: WideString;
 		pPairName 		: WideString;
                 pBrokerName		: WideString;
@@ -118,6 +120,7 @@ implementation
 
 constructor PQWriterClass.create(
         pBrokerTimeZone		: WideString;
+        pMachineTimeZone	: WideString;
 	pEAName 		: WideString;
         pPairName 		: WideString;
         pBrokerName		: WideString;
@@ -133,21 +136,24 @@ constructor PQWriterClass.create(
         pMaxRetries		: DWORD
 );
 begin
-        ThisPairName:=pPairName;
+        ThisPairName:=Utf8ToAnsi( pPairName );
      	log('PQWriterClass.create %s: Invoking', [ThisPairName]);
         ThisBrokerID:=-1;
         ThisPairID:=-1;
         ThisAliasID:=-1;
-        ThisBrokerTimezone:=pBrokerTimeZone;
-        ThisBrokerName:=pBrokerName;
+        ThisBrokerTimezone:=Utf8ToAnsi( pBrokerTimeZone );
+        ThisMachineTimezone:=Utf8ToAnsi( pMachineTimeZone );
+        ThisBrokerName:=Utf8ToAnsi( pBrokerName );
         ThisAccountIsDemo:=pIsDemo;
-     	ThisEAName:=pEAName;
+     	ThisEAName:=Utf8ToAnsi( pEAName );
         ThisTimeframe:=pTimeFrame;
         ThisPairPoint:=pPoint;
         ThisPairDigits:=pDigits;
         MaxRetries:=pMaxRetries;
         isInitalized:=true;
         PredLocTime:=0;
+        DBTransaction:=NIL;
+        DBConnection:=NIL;
         log('PQWriterClass.create %s: Connecting...', [ThisPairName]);
      	DBConnection:=TPQConnection.create(NIL);
         log('PQWriterClass.create %s: Created ...', [ThisPairName]);
@@ -234,7 +240,7 @@ begin
                 insertTickQuery:=TSQLQuery.create(NIL);
                 insertTickQuery.DataBase:=DBConnection;
                 insertTickQuery.SQL.Text:='insert into t_mt4_ticks (pair_id, loctimestamp, tick_cnt, ttimestamp, isBadTick, dbid, dask, dlast, dvolume) values ' +
-                			'(:PAIRID, :LOCTIMESTAMP, :TICKCOUNTER, cast(:TIMESTAMP as timestamptz), :ISROQUETICK, :BID, :ASK, :LAST, :VOLUME)';
+                			'(:PAIRID, cast(:LOCTIMESTAMP as timestamptz), :TICKCOUNTER, cast(:TIMESTAMP as timestamptz), :ISROQUETICK, :BID, :ASK, :LAST, :VOLUME)';
                 			// Using this the time zone information gets lost.
                                         // '(:PAIRID, :TIMESTAMP, :BID, :ASK, :LAST, :VOLUME)';
         	log('PQWriterClass.create %s: Connected!', [ThisPairName]);
@@ -266,7 +272,7 @@ end;
 
 destructor PQWriterClass.destroy();
 begin
-        log('PQWriterClass.destroy: Destroying ...');
+        log('PQWriterClass.destroy %s: Destroying ...', [ThisPairName]);
         SessionSettingsQuery.free;
         insertTickQuery.free;
         getBrokerIDQuery.free;
@@ -278,18 +284,21 @@ begin
         try
                 // Was es bis hier nicht zum Commit geschafft hat
                 // braucht ihn wohl auch nicht... :)
-                DBTransaction.Rollback;
-                DBTransaction.Free;
-        	DBConnection.Close;
-                DBConnection.Free;
+                if (DBTransaction<>NIL) then begin
+                	DBTransaction.Rollback;
+	                DBTransaction.Free;
+		end;
+                if (DBConnection<>NIL) then begin
+			DBConnection.Close;
+                	DBConnection.Free;
+		end;
 	except on E:Exception do begin
         		Log('PQWriterClass.destroy %s: Error "%s"', [ThisPairName, E.Message]);
 		end;
        	end;
         isConnected:=false;
         log('PQWriterClass.DBDisconnect %s: Disconnected...', [ThisPairName]);
-        inherited destroy;
-        log('PQWriterClass.destroy %s: Destroyed ...', [ThisPairName]);
+        // inherited destroy;
 end;
 
 
@@ -347,7 +356,7 @@ begin
                 }
                 // Primary key
                 insertTickQuery.Params.ParamByName('PAIRID').AsInteger:=ThisPairID;
-                insertTickQuery.Params.ParamByName('LOCTIMESTAMP').AsDateTime:=CurrLocTime;
+                insertTickQuery.Params.ParamByName('LOCTIMESTAMP').AsString:=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', CurrLocTime) + ' ' + ThisMachineTimezone;
                 insertTickQuery.Params.ParamByName('TICKCOUNTER').AsInteger:=TickCounter;
                 // Payload
                 insertTickQuery.Params.ParamByName('TIMESTAMP').AsString:=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', CurrTickTime) + ' ' + ThisBrokerTimezone;
