@@ -149,7 +149,8 @@ void start() {
 		// other variables are not initialized properly.
 		// So we have to wait until the startup is complete.
 		if (AccountCompany()!="") {
-			Print("start: Establishing connection to \"" + DBHostName + "://" + DBUserName + "@" + DBDatabaseName + "\"" );
+			string dbPar="\"" + DBHostName + "://" + DBUserName + "@" + DBDatabaseName + "\"";
+			Print("start: Establishing connection to " + dbPar );
 			pqHandle=pqInit(
 				BrokerTimezone,
 				LocalTimezone,
@@ -168,12 +169,12 @@ void start() {
 				DBPassword,
 				DBMaxRetries
 			);
-			Print("start: Checking connection to \"" + DBHostName + "://" + DBUserName + "@" + DBDatabaseName + "\"" );
+			Print("start: Checking connection to " + dbPar );
 			// Retry connection "if (!IsSQLConnected)"
 			isSQLConnected=(isValidHandle(pqHandle)!=0);
 			Print("start: Connectionhandle is " + pqHandle + " isValidHandle=" + isSQLConnected );
 			if (!isSQLConnected) {
-				Print("start: Cleaning up handle=" + pqHandle );
+				Print("start: NOT CONNECTED! Cleaning up handle=" + pqHandle );
 				pqDeInit(pqHandle);
 				pqHandle=0;
 				Sleep(PollingInterval);

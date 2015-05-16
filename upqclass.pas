@@ -333,7 +333,8 @@ begin
                 end;
 	end;
         CurrTickTime:=UnixToDateTime(pSQLTick^.MQLTick.time);
-        CurrLocTime:=TimeStampToDateTime(pSQLTick^.ts);
+        psqlTick^.TickTime:=CurrTickTime;
+        CurrLocTime:=TimeStampToDateTime(pSQLTick^.localTime);
         if (PredLocTime<>0) then begin
                 LocTimeDelta:=MilliSecondsBetween(PredLocTime, CurrLocTime);
 	end else begin

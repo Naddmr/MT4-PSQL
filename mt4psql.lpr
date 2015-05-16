@@ -93,7 +93,7 @@ begin
      	nTick^.MQLTick:=pTick^;
      	// store an additional timestamp of the local time
      	// in the tick row to derive the milliseconds from there.
-     	nTick^.ts:=DateTimeToTimeStamp(Now);
+     	nTick^.localTime:=DateTimeToTimeStamp(Now);
      	PQDispatcher(pHdl).DispatchTick(nTick);
 end;
 

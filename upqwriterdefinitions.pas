@@ -43,7 +43,7 @@ pMQLTickRow = ^TMQLTickRow;
 TSQLTickRow = packed record
         pairID		: Integer;
         MQLTick		: TMQLTickRow;
-        localTime	: TDateTime;
+        localTime	: TTimeStamp;
         TickTime	: TDateTime;
         TickCounter	: Integer;
 end;

@@ -9,7 +9,7 @@
         <Filename Value="mt4psql.lpr"/>
         <IsPartOfProject Value="True"/>
         <TopLine Value="64"/>
-        <CursorPos Y="106"/>
+        <CursorPos X="25" Y="96"/>
         <UsageCount Value="1573"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -17,9 +17,10 @@
         <Filename Value="upqclass.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UpqClass"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="136"/>
-        <CursorPos X="17" Y="162"/>
+        <TopLine Value="332"/>
+        <CursorPos X="41" Y="336"/>
         <UsageCount Value="1573"/>
         <Bookmarks Count="1">
           <Item0 X="19" Y="190"/>
@@ -30,7 +31,6 @@
         <Filename Value="upqdispatcher.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="uPQDispatcher"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="86"/>
         <CursorPos X="19" Y="309"/>
@@ -42,8 +42,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="uPQWriterDefinitions"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="9"/>
-        <CursorPos X="19" Y="63"/>
+        <TopLine Value="15"/>
+        <CursorPos X="37" Y="46"/>
         <UsageCount Value="233"/>
         <Loaded Value="True"/>
       </Unit3>
@@ -69,123 +69,123 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="upqclass.pas"/>
-        <Caret Line="286" Column="86" TopLine="256"/>
+        <Caret Line="86" Column="33" TopLine="36"/>
       </Position1>
       <Position2>
         <Filename Value="upqclass.pas"/>
-        <Caret Line="238" TopLine="197"/>
+        <Caret Line="113" Column="99" TopLine="71"/>
       </Position2>
       <Position3>
         <Filename Value="upqclass.pas"/>
-        <Caret Line="513" Column="60" TopLine="197"/>
+        <Caret Line="131" Column="27" TopLine="107"/>
       </Position3>
       <Position4>
-        <Filename Value="upqclass.pas"/>
-        <Caret Line="86" Column="33" TopLine="36"/>
-      </Position4>
-      <Position5>
-        <Filename Value="upqclass.pas"/>
-        <Caret Line="113" Column="99" TopLine="71"/>
-      </Position5>
-      <Position6>
-        <Filename Value="upqclass.pas"/>
-        <Caret Line="131" Column="27" TopLine="107"/>
-      </Position6>
-      <Position7>
         <Filename Value="mt4psql.lpr"/>
         <Caret Line="5" Column="22"/>
-      </Position7>
-      <Position8>
+      </Position4>
+      <Position5>
         <Filename Value="mt4psql.lpr"/>
         <Caret Line="17" Column="2"/>
+      </Position5>
+      <Position6>
+        <Filename Value="upqdispatcher.pas"/>
+        <Caret Line="250" Column="17" TopLine="243"/>
+      </Position6>
+      <Position7>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="205" Column="16" TopLine="199"/>
+      </Position7>
+      <Position8>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="10" Column="19"/>
       </Position8>
       <Position9>
         <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="250" Column="17" TopLine="243"/>
+        <Caret Line="151" Column="56" TopLine="116"/>
       </Position9>
       <Position10>
-        <Filename Value="upqclass.pas"/>
-        <Caret Line="205" Column="16" TopLine="199"/>
+        <Filename Value="upqdispatcher.pas"/>
+        <Caret Line="63" Column="21" TopLine="33"/>
       </Position10>
       <Position11>
-        <Filename Value="upqwriterdefinitions.pas"/>
-        <Caret Line="10" Column="19"/>
+        <Filename Value="upqdispatcher.pas"/>
+        <Caret Line="129" Column="13" TopLine="112"/>
       </Position11>
       <Position12>
         <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="151" Column="56" TopLine="116"/>
+        <Caret Line="231" Column="21" TopLine="214"/>
       </Position12>
       <Position13>
         <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="63" Column="21" TopLine="33"/>
+        <Caret Line="168" Column="16" TopLine="82"/>
       </Position13>
       <Position14>
         <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="129" Column="13" TopLine="112"/>
+        <Caret Line="179" Column="37" TopLine="145"/>
       </Position14>
       <Position15>
         <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="231" Column="21" TopLine="214"/>
+        <Caret Line="89" Column="18" TopLine="60"/>
       </Position15>
       <Position16>
-        <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="168" Column="16" TopLine="82"/>
-      </Position16>
-      <Position17>
-        <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="179" Column="37" TopLine="145"/>
-      </Position17>
-      <Position18>
-        <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="89" Column="18" TopLine="60"/>
-      </Position18>
-      <Position19>
         <Filename Value="mt4psql.lpr"/>
         <Caret Line="101" Column="44" TopLine="56"/>
+      </Position16>
+      <Position17>
+        <Filename Value="mt4psql.lpr"/>
+        <Caret Line="99" Column="10" TopLine="56"/>
+      </Position17>
+      <Position18>
+        <Filename Value="mt4psql.lpr"/>
+        <Caret Line="101" Column="51" TopLine="56"/>
+      </Position18>
+      <Position19>
+        <Filename Value="upqdispatcher.pas"/>
+        <Caret Line="365" Column="15" TopLine="330"/>
       </Position19>
       <Position20>
         <Filename Value="mt4psql.lpr"/>
-        <Caret Line="99" Column="10" TopLine="56"/>
+        <Caret Line="103" Column="10" TopLine="56"/>
       </Position20>
       <Position21>
         <Filename Value="mt4psql.lpr"/>
-        <Caret Line="101" Column="51" TopLine="56"/>
+        <Caret Line="105" Column="50" TopLine="62"/>
       </Position21>
       <Position22>
-        <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="365" Column="15" TopLine="330"/>
+        <Filename Value="mt4psql.lpr"/>
+        <Caret Line="85" Column="90" TopLine="62"/>
       </Position22>
       <Position23>
         <Filename Value="mt4psql.lpr"/>
-        <Caret Line="103" Column="10" TopLine="56"/>
+        <Caret Line="105" Column="27" TopLine="62"/>
       </Position23>
       <Position24>
         <Filename Value="mt4psql.lpr"/>
-        <Caret Line="105" Column="50" TopLine="62"/>
+        <Caret Line="54" Column="17" TopLine="43"/>
       </Position24>
       <Position25>
-        <Filename Value="mt4psql.lpr"/>
-        <Caret Line="85" Column="90" TopLine="62"/>
+        <Filename Value="upqdispatcher.pas"/>
+        <Caret Line="389" Column="15" TopLine="333"/>
       </Position25>
       <Position26>
-        <Filename Value="mt4psql.lpr"/>
-        <Caret Line="105" Column="27" TopLine="62"/>
+        <Filename Value="upqdispatcher.pas"/>
+        <Caret Line="123" Column="18" TopLine="74"/>
       </Position26>
       <Position27>
         <Filename Value="mt4psql.lpr"/>
-        <Caret Line="54" Column="17" TopLine="43"/>
+        <Caret Line="108" Column="46" TopLine="62"/>
       </Position27>
       <Position28>
-        <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="389" Column="15" TopLine="333"/>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="142" Column="22" TopLine="136"/>
       </Position28>
       <Position29>
-        <Filename Value="upqdispatcher.pas"/>
-        <Caret Line="123" Column="18" TopLine="74"/>
+        <Filename Value="upqclass.pas"/>
+        <Caret Line="336" Column="61" TopLine="307"/>
       </Position29>
       <Position30>
         <Filename Value="mt4psql.lpr"/>
-        <Caret Line="108" Column="46" TopLine="62"/>
+        <Caret Line="106" TopLine="64"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
