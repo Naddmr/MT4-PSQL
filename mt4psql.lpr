@@ -26,10 +26,13 @@ uses
        Classes,
        Windows,
        SysUtils,
-       UpqClass, uPQDispatcher, uPQWriterDefinitions;
+       UpqClass,
+       uPQDispatcher,
+       uPQWriterDefinitions;
 
 function pqInit(
    	pBrokerTimezone		: pWideChar;
+        pMachineTimezone	: pWideChar;
   	pEAName    		: PWideChar;
         pPairName 		: PWideChar;
         pBrokerName		: PWideChar;
@@ -49,7 +52,9 @@ var
 	 hdl	  : LongInt;
 begin
      hdl:=LongInt(
-     		PQDispatcher.Create(pBrokerTimezone,
+     		PQDispatcher.Create(
+                	pBrokerTimezone,
+                        pMachineTimezone,
      			pEAName,
                         pPairName,
                         pBrokerName,
@@ -71,7 +76,8 @@ end;
 
 procedure pqDeInit(pHdl		: LongInt) ; stdcall;
 begin
-     PQDispatcher(pHdl).free;
+        if (PQDispatcher(pHdl)<>NIL) then
+     		PQDispatcher(pHdl).free;
 end;
 
 procedure DispatchTick(
@@ -81,21 +87,26 @@ procedure DispatchTick(
 var
          nTick			: pSQLTickRow;
 begin
-     // Copy the tick value into a heap variable
-     // and enqueue the values ...
-     nTick:=New(pSQLTickRow);
-     nTick^.MQLTick:=pTick^;
-     // store an additional timestamp of the local time
-     // in the tick row to derive the milliseconds from there.
-     nTick^.ts:=DateTimeToTimeStamp(Now);
-     PQDispatcher(pHdl).DispatchTick(nTick);
+     	// Copy the tick value into a heap variable
+     	// and enqueue the values ...
+     	nTick:=New(pSQLTickRow);
+     	nTick^.MQLTick:=pTick^;
+     	// store an additional timestamp of the local time
+     	// in the tick row to derive the milliseconds from there.
+     	nTick^.ts:=DateTimeToTimeStamp(Now);
+     	PQDispatcher(pHdl).DispatchTick(nTick);
 end;
 
 function isValidHandle(
           pHdl			: LongInt
-):boolean;
+):Integer;
+var
+        rc	: Integer;
 begin
-     exit(PQDispatcher(pHdl).isValid);
+     	// if (PQDispatcher(pHdl)<>NIL) then
+        rc:=PQDispatcher(pHdl).GetisValid();
+     	log('isValidHandle: rc=%d ...', [rc]);
+     	exit( rc );
 end;
 
 exports

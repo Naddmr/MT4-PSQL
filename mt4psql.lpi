@@ -40,7 +40,6 @@
       <Unit0>
         <Filename Value="mt4psql.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="mt4psql"/>
       </Unit0>
       <Unit1>
         <Filename Value="upqclass.pas"/>
@@ -78,10 +77,6 @@
       </Options>
     </Linking>
     <Other>
-      <CompilerMessages>
-        <MsgFileName Value=""/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
       <ExecuteAfter>
         <Command Value="copy_dll.bat"/>
       </ExecuteAfter>
