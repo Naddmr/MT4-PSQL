@@ -10,7 +10,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="mt4psql"/>
+      <Title Value="mt4psql_proc"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -31,42 +31,18 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="1">
-      <Item1>
-        <PackageName Value="LCLBase"/>
-      </Item1>
-    </RequiredPackages>
-    <Units Count="5">
+    <Units Count="1">
       <Unit0>
-        <Filename Value="mt4psql.lpr"/>
+        <Filename Value="mt4psql_proc.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
-      <Unit1>
-        <Filename Value="upqclass.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="UpqClass"/>
-      </Unit1>
-      <Unit2>
-        <Filename Value="upqdispatcher.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="uPQDispatcher"/>
-      </Unit2>
-      <Unit3>
-        <Filename Value="upqwriterdefinitions.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="uPQWriterDefinitions"/>
-      </Unit3>
-      <Unit4>
-        <Filename Value="upq_configclass.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="mt4psql"/>
+      <Filename Value="mt4psql_proc"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
@@ -82,7 +58,9 @@
     </Linking>
     <Other>
       <ExecuteAfter>
-        <Command Value="copy_dll.bat"/>
+        <Command Value="copy_proc_dll.bat"/>
+        <ShowAllMessages Value="True"/>
+        <CompileReasons Run="False"/>
       </ExecuteAfter>
     </Other>
   </CompilerOptions>

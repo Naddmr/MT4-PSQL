@@ -59,6 +59,8 @@ public
         function PopTick() : pSQLTickRow;
 private
         Function ReConnect() : PQWriterClass;
+        procedure Log(AMessage: WideString);
+	procedure Log(AMessage: WideString; AArgs: array of const);
 end;
 // ############################################################################
 PQDispatcher = Class
@@ -95,6 +97,8 @@ public
         //
         function getIsvalid() : Integer;
 private
+        procedure Log(AMessage: WideString);
+	procedure Log(AMessage: WideString; AArgs: array of const);
 End;
 implementation
 //
@@ -182,6 +186,18 @@ begin
                 rc:=1;
         log('PQDispatcher.getIsvalid: rc=%d', [ rc ] );
         exit(rc);
+end;
+
+// log a message to the debug monitor
+procedure PQDispatcher.Log(AMessage: WideString);
+begin
+	OutputDebugStringW( PWideChar(AMessage) );
+end;
+
+// log a formatted message to the debug monitor
+procedure PQDispatcher.Log(AMessage: WideString; AArgs: array of const);
+begin
+	Log(Format(AMessage, AArgs));
 end;
 
 //
@@ -324,6 +340,18 @@ begin
         exit(rc);
 end;
 
+
+// log a message to the debug monitor
+procedure PQWriterThreadClass.Log(AMessage: WideString);
+begin
+	OutputDebugStringW( PWideChar(AMessage) );
+end;
+
+// log a formatted message to the debug monitor
+procedure PQWriterThreadClass.Log(AMessage: WideString; AArgs: array of const);
+begin
+	Log(Format(AMessage, AArgs));
+end;
 
 
 end.

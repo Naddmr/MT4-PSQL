@@ -4,15 +4,12 @@
     <Version Value="9"/>
     <PathDelim Value="\"/>
     <General>
-      <Flags>
-        <MainUnitHasCreateFormStatements Value="False"/>
-        <MainUnitHasTitleStatement Value="False"/>
-      </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="mt4psql"/>
-      <UseAppBundle Value="False"/>
+      <Title Value="MT4_4_PQ_MainWindow"/>
       <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -33,32 +30,36 @@
     </RunParams>
     <RequiredPackages Count="1">
       <Item1>
-        <PackageName Value="LCLBase"/>
+        <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
     <Units Count="5">
       <Unit0>
-        <Filename Value="mt4psql.lpr"/>
+        <Filename Value="MT4_4_PQ_MainWindow.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="upqclass.pas"/>
+        <Filename Value="umt4_pq_writerwindow.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="UpqClass"/>
+        <ComponentName Value="frmWriterWindow"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="umt4_pq_writerwindow"/>
       </Unit1>
       <Unit2>
-        <Filename Value="upqdispatcher.pas"/>
+        <Filename Value="umt4_pq_threadclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="uPQDispatcher"/>
+        <UnitName Value="uMT4_PQ_ThreadClass"/>
       </Unit2>
       <Unit3>
-        <Filename Value="upqwriterdefinitions.pas"/>
+        <Filename Value="umt4_pq_writerclass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="uPQWriterDefinitions"/>
+        <UnitName Value="uMT4_PQ_WriterClass"/>
       </Unit3>
       <Unit4>
-        <Filename Value="upq_configclass.pas"/>
+        <Filename Value="umt4_pq_queuemanager.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="umt4_PQ_QueueManager"/>
       </Unit4>
     </Units>
   </ProjectOptions>
@@ -66,24 +67,28 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="mt4psql"/>
+      <Filename Value="MT4_4_PQ_MainWindow"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
-    <CodeGeneration>
-      <RelocatableUnit Value="True"/>
-    </CodeGeneration>
     <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+        <UseLineInfoUnit Value="False"/>
+      </Debugging>
       <Options>
-        <ExecutableType Value="Library"/>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
       </Options>
     </Linking>
     <Other>
-      <ExecuteAfter>
-        <Command Value="copy_dll.bat"/>
-      </ExecuteAfter>
+      <Verbosity>
+        <ShoLineNum Value="True"/>
+        <ShowExecInfo Value="True"/>
+      </Verbosity>
     </Other>
   </CompilerOptions>
   <Debugging>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="3">
+      <Unit0>
+        <Filename Value="mt4psql_proc.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <CursorPos X="44" Y="18"/>
+        <UsageCount Value="207"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <UnitName Value="uPQWriterDefinitions"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="196"/>
+        <CursorPos X="15" Y="222"/>
+        <UsageCount Value="103"/>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <UnitName Value="upq_process_dispatcher"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="239"/>
+        <CursorPos X="34" Y="264"/>
+        <UsageCount Value="103"/>
+        <Loaded Value="True"/>
+      </Unit2>
+    </Units>
+    <JumpHistory Count="29" HistoryIndex="28">
+      <Position1>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="136" Column="26" TopLine="97"/>
+      </Position1>
+      <Position2>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="135" Column="43" TopLine="106"/>
+      </Position2>
+      <Position3>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="141" Column="78" TopLine="113"/>
+      </Position3>
+      <Position4>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="138" Column="38" TopLine="109"/>
+      </Position4>
+      <Position5>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="140" Column="68" TopLine="111"/>
+      </Position5>
+      <Position6>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="145" Column="21" TopLine="117"/>
+      </Position6>
+      <Position7>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="129" TopLine="121"/>
+      </Position7>
+      <Position8>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="165" Column="21" TopLine="156"/>
+      </Position8>
+      <Position9>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="134" Column="28" TopLine="110"/>
+      </Position9>
+      <Position10>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="220" Column="55" TopLine="191"/>
+      </Position10>
+      <Position11>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="215" TopLine="188"/>
+      </Position11>
+      <Position12>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="182" Column="60" TopLine="154"/>
+      </Position12>
+      <Position13>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="220" Column="34" TopLine="191"/>
+      </Position13>
+      <Position14>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="40" Column="12" TopLine="13"/>
+      </Position14>
+      <Position15>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="202" Column="46" TopLine="162"/>
+      </Position15>
+      <Position16>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="311" TopLine="295"/>
+      </Position16>
+      <Position17>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="139" Column="32" TopLine="95"/>
+      </Position17>
+      <Position18>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="275" Column="30" TopLine="265"/>
+      </Position18>
+      <Position19>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="249" Column="46" TopLine="220"/>
+      </Position19>
+      <Position20>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="275" Column="42" TopLine="258"/>
+      </Position20>
+      <Position21>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="253" Column="55" TopLine="214"/>
+      </Position21>
+      <Position22>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="168" Column="18" TopLine="146"/>
+      </Position22>
+      <Position23>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="480" Column="31" TopLine="137"/>
+      </Position23>
+      <Position24>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="168" Column="19" TopLine="142"/>
+      </Position24>
+      <Position25>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="480" Column="26" TopLine="437"/>
+      </Position25>
+      <Position26>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="135" Column="62" TopLine="105"/>
+      </Position26>
+      <Position27>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="205" Column="25" TopLine="189"/>
+      </Position27>
+      <Position28>
+        <Filename Value="upqwriterdefinitions.pas"/>
+        <Caret Line="318" Column="32" TopLine="267"/>
+      </Position28>
+      <Position29>
+        <Filename Value="upq_process_dispatcher.pas"/>
+        <Caret Line="228" Column="13" TopLine="221"/>
+      </Position29>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>

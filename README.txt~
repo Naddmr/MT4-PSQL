@@ -321,15 +321,8 @@ pg_dump -f OUTPUT_FILE_NAME.DMP -F c DATABASE_NAME -h HOST_NAME -U USER_NAME -Z 
 [/code]
 
 Replace OUTPUT_FILE_NAME.DMP with a path and file name of your choice, DATABASE_NAME with your database name, HOST_NAME with your host name and USER_NAME with the username to connect to your database.
- 
-After the command finishes you should have some backup file on your harddisk containing all the database structures and data.
- 
- 
+  
 [U]Restore[/U]
-To restore the above file into an existing database named "DATABASE_NAME" you just have to enter the command:
-[code]
-pg_restore -U USER_NAME -c -d DATABASE_NAME OUTPUT_FILE_NAME.DMP
-[/code]
 
 
 Refer to [URL]http://www.postgresql.org/docs/[/URL] for further reading about PostgreSQL database maintenance.

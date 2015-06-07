@@ -23,10 +23,10 @@
 # they are parameters to the function defined below.
 #####################
 OANDA_BROKER_ID = 2
-FXCM_BROKER_ID = 1
-PAIR_NAME <- "USDJPY"
-FROM_TIME  <- "2015-05-08 14:25:00"
-UNTIL_TIME <- "2015-05-08 15:00:00"
+FXCM_BROKER_ID = 3
+PAIR_NAME <- "XAUUSD"
+FROM_TIME  <- "2015-06-03 11:27:00"
+UNTIL_TIME <- "2015-06-03 11:29:00"
 thisTZ <- "Europe/Berlin"
 #####################
 #
@@ -34,7 +34,7 @@ pkgs <- c('zoo', 'xts', 'lattice', 'fBasics', 'MASS', 'quantmod', 'TTR', 'RPostg
 lapply(pkgs, require, character.only=T)
 remove(pkgs)
 getOption("digits.secs")
-opts <- options(digits.secs = 3)
+opts <- options(digits.secs = 4)
 
 fetch_ticks <- function(
 		broker_id, 
@@ -59,8 +59,8 @@ fetch_ticks <- function(
 		 where
 			b.broker_id=", broker_id, " and ",
 			" a.pairname='", alias_name, "' and ",
-			" t.loctimestamp>='", from_timestamp, "'::timestamp and ",
-			" t.loctimestamp<='", until_timestamp, "'::timestamp ",
+			" t.loctimestamp>='", from_timestamp,  " ", thisTZ, "'::timestamp with time zone and ",
+			" t.loctimestamp<='", until_timestamp, " ", thisTZ, "'::timestamp with time zone",
 		sep=""
 	)
 	rs <- dbSendQuery(con, q)
@@ -72,12 +72,8 @@ fetch_ticks <- function(
 	# the wrong time zone recalculation is applied
 	# Force no time zone
 	if (nrow(rc)>0) {
+		# Note that no time zone recalculation is needed here any longer!
 		rc <- as.xts(rc[,c("dbid", "dask")], order.by=rc$loctimestamp)
-		index(rc) <- as.POSIXct(format(index(rc), usetz=FALSE), tz=thisTZ)
-		# Force UTC time zone
-		index(rc) <- as.POSIXlt(format(index(rc), tz="UTC"), tz="UTC")
-		# Finally - Europe Berlin
-		index(rc) <- as.POSIXct(format(index(rc), usetz=FALSE), tz=thisTZ)
 	}
 	return(rc)
 }
@@ -90,7 +86,7 @@ prices <- as.zoo(fxcm)
 from_x <- first(index(prices))
 until_x <- last(index(prices))
 
-plotTitle <- paste("FXCM", PAIR_NAME, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
+plotTitle <- paste("FXCM", " ", PAIR_NAME, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
 colors=rainbow(ncol(prices))
 print(xyplot(prices, 
 		col=colors, 
@@ -104,7 +100,7 @@ print(xyplot(prices,
 prices <- as.zoo(oanda)
 from_x <- first(index(prices))
 until_x <- last(index(prices))
-plotTitle <- paste("OANDA", PAIR_NAME, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
+plotTitle <- paste("OANDA", " ", PAIR_NAME, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
 colors=rainbow(ncol(prices))
 print(xyplot(prices, 
 			 col=colors, 
@@ -116,7 +112,7 @@ print(xyplot(prices,
 )
 
 prices<-as.zoo(merge.xts(fxcm, oanda))
-plotTitle <- paste("BOTH", PAIR_NAME, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
+plotTitle <- paste("BOTH", " ", PAIR_NAME, "  ", from_x, " until ", until_x, " ", thisTZ, sep="")
 colors=rainbow(ncol(prices))
 print(xyplot(prices, 
 			 col=colors, 

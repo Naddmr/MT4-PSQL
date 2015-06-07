@@ -64,7 +64,7 @@ echo "$BROKERQUERY" | $PSQL | while read b_id b_name ; do
 			PAIRDIR="$BASEDIR$b_id/$p_name"
 			test -d $PAIRDIR || mkdir -p "$PAIRDIR"
 			FN="${BASENAME}-from-${FROMDATE}-until-${KEEPDATE}-${EXPDATE}${BASEEXT}"
-			echo "Exporting $p_name (ID=$p_id) from $b_name (ID=$b_id) into $FN ($ROWCOUNT rows from $FROMDATE until $KEEPDATE)"
+			echo "Exporting $p_name (ID=$p_id) from $b_name (ID=$b_id) into $FN ($ROWCOUNT from $FROMDATE until $KEEPDATE)"
 			EXPQUERY=`cat <<EOF
 			copy (
 				select 
@@ -106,9 +106,7 @@ done
 #
 # update statistics 
 echo "Vacuuming tick table ..."
-$PSQL -c "vacuum FULL VERBOSE ANALYZE t_mt4_ticks"
-echo "Vacuuming other tables"
-$PSQL -c "vacuum verbose analyze"
+$PSQL -c "vacuum analyze t_mt4_ticks"
 #
 echo "done ..."
 

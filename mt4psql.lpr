@@ -102,7 +102,6 @@ var
 begin
      	// if (PQDispatcher(pHdl)<>NIL) then
         rc:=PQDispatcher(pHdl).GetisValid();
-     	log('isValidHandle: rc=%d ...', [rc]);
      	exit( rc );
 end;
 

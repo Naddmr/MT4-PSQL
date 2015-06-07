@@ -39,7 +39,7 @@ protected
         // Parameters ...
         PredTTimeStamp,
         CurrTTimeStamp			: TTimeStamp;
-        MaxRetries			: DWORD;
+        // MaxRetries			: DWORD;
         // Own variables ...
         lastTickSecond			: UINT64;
         CurrTickTime			: TDateTime;
@@ -90,7 +90,9 @@ private
         procedure getBrokerData();
         procedure getPairData();
         procedure getAliasData();
-
+        // log a message to the debug monitor
+	procedure Log(AMessage: WideString);
+	procedure Log(AMessage: WideString; AArgs: array of const);
 
 end;
 
@@ -100,6 +102,7 @@ constructor PQWriterClass.create(
         pConfig			: PQConfigClass
 );
 begin
+        self.config:=pConfig;
      	log('PQWriterClass.create %s: Invoking', [config.ThisPairName]);
         ThisBrokerID:=-1;
         ThisPairID:=-1;
@@ -264,7 +267,7 @@ begin
 
         	exit(false);
 	end;
-        if (pRetryCounter>=MaxRetries) then begin
+        if (pRetryCounter>=config.MaxRetries) then begin
         	log('PQWriterClass.writeTick %s:  Max. retries reached "%d"', [config.ThisPairName, pRetryCounter]);
                 exit(false);
         end;
@@ -318,6 +321,7 @@ begin
                 insertTickQuery.ExecSQL;
                 // log('PQWriterClass.writeTick %s: Commencing Commit ', [config.ThisPairName]);
                 DBTransaction.Commit;
+                insertTickQuery.Close;
                 //
                 LastTickSecond:=pSQLTick^.MQLTick.time;
                 PredLocTime:=CurrLocTime;
@@ -512,6 +516,18 @@ begin
                 end;
 	end;
         Log('PQWriterClass.getAliasData %s: Fetched alias_id=%d (%s) for pair/pair_id/broker_id("%s", %d, %d)', [config.ThisPairName, ThisAliasID, ThisAliasName, config.ThisPairName, ThisPairID, ThisBrokerID]);
+end;
+
+// log a message to the debug monitor
+procedure PQWriterClass.Log(AMessage: WideString);
+begin
+	OutputDebugStringW( PWideChar(AMessage) );
+end;
+
+// log a formatted message to the debug monitor
+procedure PQWriterClass.Log(AMessage: WideString; AArgs: array of const);
+begin
+	Log(Format(AMessage, AArgs));
 end;
 
 end.
